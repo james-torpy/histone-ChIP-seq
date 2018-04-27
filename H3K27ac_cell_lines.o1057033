@@ -1,0 +1,566 @@
+Building DAG of jobs...
+Using shell: /bin/bash
+Provided cores: 3
+Rules claiming more threads will be scaled down.
+Job counts:
+	count	jobs
+	1	all
+	10	bwa_align
+	10	bwa_samse
+	9	fastqc
+	10	remove_dupes
+	10	samtools_filter
+	10	samtools_index
+	10	spp
+	70
+
+rule fastqc:
+    input: raw_files/fastq/H3K27ac_cell_lines/SRR1983937-input_1_pass.fastq.gz
+    output: results/fastqc/H3K27ac_cell_lines/SRR1983937-input_1_pass_fastqc.html, results/fastqc/H3K27ac_cell_lines/SRR1983937-input_1_pass_fastqc.zip
+    jobid: 13
+    wildcards: sample=SRR1983937-input_1
+
+
+rule fastqc:
+    input: raw_files/fastq/H3K27ac_cell_lines/SRR1983929-input_1_pass.fastq.gz
+    output: results/fastqc/H3K27ac_cell_lines/SRR1983929-input_1_pass_fastqc.html, results/fastqc/H3K27ac_cell_lines/SRR1983929-input_1_pass_fastqc.zip
+    jobid: 19
+    wildcards: sample=SRR1983929-input_1
+
+
+rule fastqc:
+    input: raw_files/fastq/H3K27ac_cell_lines/SRR1983928-input_2_pass.fastq.gz
+    output: results/fastqc/H3K27ac_cell_lines/SRR1983928-input_2_pass_fastqc.html, results/fastqc/H3K27ac_cell_lines/SRR1983928-input_2_pass_fastqc.zip
+    jobid: 20
+    wildcards: sample=SRR1983928-input_2
+
+Started analysis of SRR1983937-input_1_pass.fastq.gz
+Started analysis of SRR1983928-input_2_pass.fastq.gz
+Started analysis of SRR1983929-input_1_pass.fastq.gz
+Approx 5% complete for SRR1983937-input_1_pass.fastq.gz
+Approx 5% complete for SRR1983928-input_2_pass.fastq.gz
+Approx 5% complete for SRR1983929-input_1_pass.fastq.gz
+Approx 10% complete for SRR1983937-input_1_pass.fastq.gz
+Approx 10% complete for SRR1983928-input_2_pass.fastq.gz
+Approx 10% complete for SRR1983929-input_1_pass.fastq.gz
+Approx 15% complete for SRR1983937-input_1_pass.fastq.gz
+Approx 15% complete for SRR1983928-input_2_pass.fastq.gz
+Approx 15% complete for SRR1983929-input_1_pass.fastq.gz
+Approx 20% complete for SRR1983937-input_1_pass.fastq.gz
+Approx 20% complete for SRR1983928-input_2_pass.fastq.gz
+Approx 20% complete for SRR1983929-input_1_pass.fastq.gz
+Approx 25% complete for SRR1983937-input_1_pass.fastq.gz
+Approx 25% complete for SRR1983928-input_2_pass.fastq.gz
+Approx 25% complete for SRR1983929-input_1_pass.fastq.gz
+Approx 30% complete for SRR1983928-input_2_pass.fastq.gz
+Approx 30% complete for SRR1983937-input_1_pass.fastq.gz
+Approx 30% complete for SRR1983929-input_1_pass.fastq.gz
+Approx 35% complete for SRR1983928-input_2_pass.fastq.gz
+Approx 35% complete for SRR1983937-input_1_pass.fastq.gz
+Approx 35% complete for SRR1983929-input_1_pass.fastq.gz
+Approx 40% complete for SRR1983928-input_2_pass.fastq.gz
+Approx 40% complete for SRR1983937-input_1_pass.fastq.gz
+Approx 40% complete for SRR1983929-input_1_pass.fastq.gz
+Approx 45% complete for SRR1983928-input_2_pass.fastq.gz
+Approx 45% complete for SRR1983937-input_1_pass.fastq.gz
+Approx 45% complete for SRR1983929-input_1_pass.fastq.gz
+Approx 50% complete for SRR1983937-input_1_pass.fastq.gz
+Approx 50% complete for SRR1983928-input_2_pass.fastq.gz
+Approx 50% complete for SRR1983929-input_1_pass.fastq.gz
+Approx 55% complete for SRR1983937-input_1_pass.fastq.gz
+Approx 55% complete for SRR1983928-input_2_pass.fastq.gz
+Approx 55% complete for SRR1983929-input_1_pass.fastq.gz
+Approx 60% complete for SRR1983937-input_1_pass.fastq.gz
+Approx 60% complete for SRR1983928-input_2_pass.fastq.gz
+Approx 60% complete for SRR1983929-input_1_pass.fastq.gz
+Approx 65% complete for SRR1983937-input_1_pass.fastq.gz
+Approx 65% complete for SRR1983928-input_2_pass.fastq.gz
+Approx 65% complete for SRR1983929-input_1_pass.fastq.gz
+Approx 70% complete for SRR1983937-input_1_pass.fastq.gz
+Approx 70% complete for SRR1983928-input_2_pass.fastq.gz
+Approx 70% complete for SRR1983929-input_1_pass.fastq.gz
+Approx 75% complete for SRR1983937-input_1_pass.fastq.gz
+Approx 75% complete for SRR1983928-input_2_pass.fastq.gz
+Approx 75% complete for SRR1983929-input_1_pass.fastq.gz
+Approx 80% complete for SRR1983937-input_1_pass.fastq.gz
+Approx 80% complete for SRR1983928-input_2_pass.fastq.gz
+Approx 85% complete for SRR1983937-input_1_pass.fastq.gz
+Approx 80% complete for SRR1983929-input_1_pass.fastq.gz
+Approx 85% complete for SRR1983928-input_2_pass.fastq.gz
+Approx 90% complete for SRR1983937-input_1_pass.fastq.gz
+Approx 85% complete for SRR1983929-input_1_pass.fastq.gz
+Approx 90% complete for SRR1983928-input_2_pass.fastq.gz
+Approx 95% complete for SRR1983937-input_1_pass.fastq.gz
+Approx 90% complete for SRR1983929-input_1_pass.fastq.gz
+Approx 95% complete for SRR1983928-input_2_pass.fastq.gz
+Analysis complete for SRR1983937-input_1_pass.fastq.gz
+Finished job 13.
+1 of 70 steps (1%) done
+
+rule fastqc:
+    input: raw_files/fastq/H3K27ac_cell_lines/SRR5823948-OVCAR-H3K27ac_pass.fastq.gz
+    output: results/fastqc/H3K27ac_cell_lines/SRR5823948-OVCAR-H3K27ac_pass_fastqc.html, results/fastqc/H3K27ac_cell_lines/SRR5823948-OVCAR-H3K27ac_pass_fastqc.zip
+    jobid: 2
+    wildcards: sample=SRR5823948-OVCAR-H3K27ac
+
+Started analysis of SRR5823948-OVCAR-H3K27ac_pass.fastq.gz
+Approx 95% complete for SRR1983929-input_1_pass.fastq.gz
+Analysis complete for SRR1983928-input_2_pass.fastq.gz
+Finished job 20.
+2 of 70 steps (3%) done
+
+rule fastqc:
+    input: raw_files/fastq/H3K27ac_cell_lines/SRR5823949-SKOV-H3K27ac_pass.fastq.gz
+    output: results/fastqc/H3K27ac_cell_lines/SRR5823949-SKOV-H3K27ac_pass_fastqc.html, results/fastqc/H3K27ac_cell_lines/SRR5823949-SKOV-H3K27ac_pass_fastqc.zip
+    jobid: 3
+    wildcards: sample=SRR5823949-SKOV-H3K27ac
+
+Started analysis of SRR5823949-SKOV-H3K27ac_pass.fastq.gz
+Analysis complete for SRR1983929-input_1_pass.fastq.gz
+Approx 5% complete for SRR5823948-OVCAR-H3K27ac_pass.fastq.gz
+Finished job 19.
+3 of 70 steps (4%) done
+
+rule fastqc:
+    input: raw_files/fastq/H3K27ac_cell_lines/SRR1983932-H3K27ac_1_pass.fastq.gz
+    output: results/fastqc/H3K27ac_cell_lines/SRR1983932-H3K27ac_1_pass_fastqc.html, results/fastqc/H3K27ac_cell_lines/SRR1983932-H3K27ac_1_pass_fastqc.zip
+    jobid: 10
+    wildcards: sample=SRR1983932-H3K27ac_1
+
+Started analysis of SRR1983932-H3K27ac_1_pass.fastq.gz
+Approx 5% complete for SRR5823949-SKOV-H3K27ac_pass.fastq.gz
+Approx 5% complete for SRR1983932-H3K27ac_1_pass.fastq.gz
+Approx 10% complete for SRR1983932-H3K27ac_1_pass.fastq.gz
+Approx 15% complete for SRR1983932-H3K27ac_1_pass.fastq.gz
+Approx 10% complete for SRR5823949-SKOV-H3K27ac_pass.fastq.gz
+Approx 10% complete for SRR5823948-OVCAR-H3K27ac_pass.fastq.gz
+Approx 20% complete for SRR1983932-H3K27ac_1_pass.fastq.gz
+Approx 25% complete for SRR1983932-H3K27ac_1_pass.fastq.gz
+Approx 30% complete for SRR1983932-H3K27ac_1_pass.fastq.gz
+Approx 15% complete for SRR5823949-SKOV-H3K27ac_pass.fastq.gz
+Approx 35% complete for SRR1983932-H3K27ac_1_pass.fastq.gz
+Approx 40% complete for SRR1983932-H3K27ac_1_pass.fastq.gz
+Approx 15% complete for SRR5823948-OVCAR-H3K27ac_pass.fastq.gz
+Approx 45% complete for SRR1983932-H3K27ac_1_pass.fastq.gz
+Approx 50% complete for SRR1983932-H3K27ac_1_pass.fastq.gz
+Approx 20% complete for SRR5823949-SKOV-H3K27ac_pass.fastq.gz
+Approx 55% complete for SRR1983932-H3K27ac_1_pass.fastq.gz
+Approx 60% complete for SRR1983932-H3K27ac_1_pass.fastq.gz
+Approx 20% complete for SRR5823948-OVCAR-H3K27ac_pass.fastq.gz
+Approx 65% complete for SRR1983932-H3K27ac_1_pass.fastq.gz
+Approx 25% complete for SRR5823949-SKOV-H3K27ac_pass.fastq.gz
+Approx 70% complete for SRR1983932-H3K27ac_1_pass.fastq.gz
+Approx 75% complete for SRR1983932-H3K27ac_1_pass.fastq.gz
+Approx 80% complete for SRR1983932-H3K27ac_1_pass.fastq.gz
+Approx 30% complete for SRR5823949-SKOV-H3K27ac_pass.fastq.gz
+Approx 85% complete for SRR1983932-H3K27ac_1_pass.fastq.gz
+Approx 25% complete for SRR5823948-OVCAR-H3K27ac_pass.fastq.gz
+Approx 90% complete for SRR1983932-H3K27ac_1_pass.fastq.gz
+Approx 95% complete for SRR1983932-H3K27ac_1_pass.fastq.gz
+Analysis complete for SRR1983932-H3K27ac_1_pass.fastq.gz
+Approx 35% complete for SRR5823949-SKOV-H3K27ac_pass.fastq.gz
+Finished job 10.
+4 of 70 steps (6%) done
+
+rule fastqc:
+    input: raw_files/fastq/H3K27ac_cell_lines/SRR1983933-H3K27ac_2_pass.fastq.gz
+    output: results/fastqc/H3K27ac_cell_lines/SRR1983933-H3K27ac_2_pass_fastqc.html, results/fastqc/H3K27ac_cell_lines/SRR1983933-H3K27ac_2_pass_fastqc.zip
+    jobid: 30
+    wildcards: sample=SRR1983933-H3K27ac_2
+
+Started analysis of SRR1983933-H3K27ac_2_pass.fastq.gz
+Approx 30% complete for SRR5823948-OVCAR-H3K27ac_pass.fastq.gz
+Approx 5% complete for SRR1983933-H3K27ac_2_pass.fastq.gz
+Approx 10% complete for SRR1983933-H3K27ac_2_pass.fastq.gz
+Approx 40% complete for SRR5823949-SKOV-H3K27ac_pass.fastq.gz
+Approx 15% complete for SRR1983933-H3K27ac_2_pass.fastq.gz
+Approx 20% complete for SRR1983933-H3K27ac_2_pass.fastq.gz
+Approx 25% complete for SRR1983933-H3K27ac_2_pass.fastq.gz
+Approx 45% complete for SRR5823949-SKOV-H3K27ac_pass.fastq.gz
+Approx 35% complete for SRR5823948-OVCAR-H3K27ac_pass.fastq.gz
+Approx 30% complete for SRR1983933-H3K27ac_2_pass.fastq.gz
+Approx 35% complete for SRR1983933-H3K27ac_2_pass.fastq.gz
+Approx 40% complete for SRR1983933-H3K27ac_2_pass.fastq.gz
+Approx 50% complete for SRR5823949-SKOV-H3K27ac_pass.fastq.gz
+Approx 45% complete for SRR1983933-H3K27ac_2_pass.fastq.gz
+Approx 50% complete for SRR1983933-H3K27ac_2_pass.fastq.gz
+Approx 40% complete for SRR5823948-OVCAR-H3K27ac_pass.fastq.gz
+Approx 55% complete for SRR1983933-H3K27ac_2_pass.fastq.gz
+Approx 60% complete for SRR1983933-H3K27ac_2_pass.fastq.gz
+Approx 55% complete for SRR5823949-SKOV-H3K27ac_pass.fastq.gz
+Approx 65% complete for SRR1983933-H3K27ac_2_pass.fastq.gz
+Approx 70% complete for SRR1983933-H3K27ac_2_pass.fastq.gz
+Approx 75% complete for SRR1983933-H3K27ac_2_pass.fastq.gz
+Approx 45% complete for SRR5823948-OVCAR-H3K27ac_pass.fastq.gz
+Approx 60% complete for SRR5823949-SKOV-H3K27ac_pass.fastq.gz
+Approx 80% complete for SRR1983933-H3K27ac_2_pass.fastq.gz
+Approx 85% complete for SRR1983933-H3K27ac_2_pass.fastq.gz
+Approx 90% complete for SRR1983933-H3K27ac_2_pass.fastq.gz
+Approx 95% complete for SRR1983933-H3K27ac_2_pass.fastq.gz
+Approx 65% complete for SRR5823949-SKOV-H3K27ac_pass.fastq.gz
+Analysis complete for SRR1983933-H3K27ac_2_pass.fastq.gz
+Finished job 30.
+5 of 70 steps (7%) done
+
+rule fastqc:
+    input: raw_files/fastq/H3K27ac_cell_lines/SRR1983924-H3K27ac_1_pass.fastq.gz
+    output: results/fastqc/H3K27ac_cell_lines/SRR1983924-H3K27ac_1_pass_fastqc.html, results/fastqc/H3K27ac_cell_lines/SRR1983924-H3K27ac_1_pass_fastqc.zip
+    jobid: 14
+    wildcards: sample=SRR1983924-H3K27ac_1
+
+Approx 50% complete for SRR5823948-OVCAR-H3K27ac_pass.fastq.gz
+Started analysis of SRR1983924-H3K27ac_1_pass.fastq.gz
+Approx 70% complete for SRR5823949-SKOV-H3K27ac_pass.fastq.gz
+Approx 5% complete for SRR1983924-H3K27ac_1_pass.fastq.gz
+Approx 10% complete for SRR1983924-H3K27ac_1_pass.fastq.gz
+Approx 15% complete for SRR1983924-H3K27ac_1_pass.fastq.gz
+Approx 55% complete for SRR5823948-OVCAR-H3K27ac_pass.fastq.gz
+Approx 20% complete for SRR1983924-H3K27ac_1_pass.fastq.gz
+Approx 75% complete for SRR5823949-SKOV-H3K27ac_pass.fastq.gz
+Approx 25% complete for SRR1983924-H3K27ac_1_pass.fastq.gz
+Approx 30% complete for SRR1983924-H3K27ac_1_pass.fastq.gz
+Approx 35% complete for SRR1983924-H3K27ac_1_pass.fastq.gz
+Approx 80% complete for SRR5823949-SKOV-H3K27ac_pass.fastq.gz
+Approx 40% complete for SRR1983924-H3K27ac_1_pass.fastq.gz
+Approx 60% complete for SRR5823948-OVCAR-H3K27ac_pass.fastq.gz
+Approx 45% complete for SRR1983924-H3K27ac_1_pass.fastq.gz
+Approx 50% complete for SRR1983924-H3K27ac_1_pass.fastq.gz
+Approx 55% complete for SRR1983924-H3K27ac_1_pass.fastq.gz
+Approx 85% complete for SRR5823949-SKOV-H3K27ac_pass.fastq.gz
+Approx 60% complete for SRR1983924-H3K27ac_1_pass.fastq.gz
+Approx 65% complete for SRR1983924-H3K27ac_1_pass.fastq.gz
+Approx 90% complete for SRR5823949-SKOV-H3K27ac_pass.fastq.gz
+Approx 65% complete for SRR5823948-OVCAR-H3K27ac_pass.fastq.gz
+Approx 70% complete for SRR1983924-H3K27ac_1_pass.fastq.gz
+Approx 75% complete for SRR1983924-H3K27ac_1_pass.fastq.gz
+Approx 80% complete for SRR1983924-H3K27ac_1_pass.fastq.gz
+Approx 85% complete for SRR1983924-H3K27ac_1_pass.fastq.gz
+Approx 95% complete for SRR5823949-SKOV-H3K27ac_pass.fastq.gz
+Approx 90% complete for SRR1983924-H3K27ac_1_pass.fastq.gz
+Approx 70% complete for SRR5823948-OVCAR-H3K27ac_pass.fastq.gz
+Approx 95% complete for SRR1983924-H3K27ac_1_pass.fastq.gz
+Analysis complete for SRR1983924-H3K27ac_1_pass.fastq.gz
+Analysis complete for SRR5823949-SKOV-H3K27ac_pass.fastq.gz
+Finished job 14.
+6 of 70 steps (9%) done
+
+rule fastqc:
+    input: raw_files/fastq/H3K27ac_cell_lines/SRR1983925-H3K27ac_2_pass.fastq.gz
+    output: results/fastqc/H3K27ac_cell_lines/SRR1983925-H3K27ac_2_pass_fastqc.html, results/fastqc/H3K27ac_cell_lines/SRR1983925-H3K27ac_2_pass_fastqc.zip
+    jobid: 28
+    wildcards: sample=SRR1983925-H3K27ac_2
+
+Started analysis of SRR1983925-H3K27ac_2_pass.fastq.gz
+Finished job 3.
+7 of 70 steps (10%) done
+Approx 5% complete for SRR1983925-H3K27ac_2_pass.fastq.gz
+Approx 75% complete for SRR5823948-OVCAR-H3K27ac_pass.fastq.gz
+Approx 10% complete for SRR1983925-H3K27ac_2_pass.fastq.gz
+Approx 15% complete for SRR1983925-H3K27ac_2_pass.fastq.gz
+Approx 20% complete for SRR1983925-H3K27ac_2_pass.fastq.gz
+Approx 25% complete for SRR1983925-H3K27ac_2_pass.fastq.gz
+Approx 30% complete for SRR1983925-H3K27ac_2_pass.fastq.gz
+Approx 80% complete for SRR5823948-OVCAR-H3K27ac_pass.fastq.gz
+Approx 35% complete for SRR1983925-H3K27ac_2_pass.fastq.gz
+Approx 40% complete for SRR1983925-H3K27ac_2_pass.fastq.gz
+Approx 45% complete for SRR1983925-H3K27ac_2_pass.fastq.gz
+Approx 50% complete for SRR1983925-H3K27ac_2_pass.fastq.gz
+Approx 55% complete for SRR1983925-H3K27ac_2_pass.fastq.gz
+Approx 85% complete for SRR5823948-OVCAR-H3K27ac_pass.fastq.gz
+Approx 60% complete for SRR1983925-H3K27ac_2_pass.fastq.gz
+Approx 65% complete for SRR1983925-H3K27ac_2_pass.fastq.gz
+Approx 70% complete for SRR1983925-H3K27ac_2_pass.fastq.gz
+Approx 75% complete for SRR1983925-H3K27ac_2_pass.fastq.gz
+Approx 80% complete for SRR1983925-H3K27ac_2_pass.fastq.gz
+Approx 85% complete for SRR1983925-H3K27ac_2_pass.fastq.gz
+Approx 90% complete for SRR5823948-OVCAR-H3K27ac_pass.fastq.gz
+Approx 90% complete for SRR1983925-H3K27ac_2_pass.fastq.gz
+Approx 95% complete for SRR1983925-H3K27ac_2_pass.fastq.gz
+Analysis complete for SRR1983925-H3K27ac_2_pass.fastq.gz
+Finished job 28.
+8 of 70 steps (11%) done
+Approx 95% complete for SRR5823948-OVCAR-H3K27ac_pass.fastq.gz
+Analysis complete for SRR5823948-OVCAR-H3K27ac_pass.fastq.gz
+Finished job 2.
+9 of 70 steps (13%) done
+
+rule bwa_align:
+    input: raw_files/fastq/H3K27ac_cell_lines/SRR1983936-input_2_pass.fastq.gz, results/fastqc/H3K27ac_cell_lines/SRR1983936-input_2_pass_fastqc.html
+    output: results/bwa/H3K27ac_cell_lines/SRR1983936-input_2.sai
+    jobid: 68
+    wildcards: sample=SRR1983936-input_2
+    threads: 3
+
+[bwa_aln] 17bp reads: max_diff = 2
+[bwa_aln] 38bp reads: max_diff = 3
+[bwa_aln] 64bp reads: max_diff = 4
+[bwa_aln] 93bp reads: max_diff = 5
+[bwa_aln] 124bp reads: max_diff = 6
+[bwa_aln] 157bp reads: max_diff = 7
+[bwa_aln] 190bp reads: max_diff = 8
+[bwa_aln] 225bp reads: max_diff = 9
+[bwa_aln_core] calculate SA coordinate... 86.74 sec
+[bwa_aln_core] write to the disk... 0.06 sec
+[bwa_aln_core] 262144 sequences have been processed.
+[bwa_aln_core] calculate SA coordinate... 95.42 sec
+[bwa_aln_core] write to the disk... 0.06 sec
+[bwa_aln_core] 524288 sequences have been processed.
+[bwa_aln_core] calculate SA coordinate... 92.24 sec
+[bwa_aln_core] write to the disk... 0.04 sec
+[bwa_aln_core] 786432 sequences have been processed.
+[bwa_aln_core] calculate SA coordinate... 90.30 sec
+[bwa_aln_core] write to the disk... 0.04 sec
+[bwa_aln_core] 1048576 sequences have been processed.
+[bwa_aln_core] calculate SA coordinate... 87.68 sec
+[bwa_aln_core] write to the disk... 0.04 sec
+[bwa_aln_core] 1310720 sequences have been processed.
+[bwa_aln_core] calculate SA coordinate... 75.21 sec
+[bwa_aln_core] write to the disk... 0.04 sec
+[bwa_aln_core] 1572864 sequences have been processed.
+[bwa_aln_core] calculate SA coordinate... 83.26 sec
+[bwa_aln_core] write to the disk... 0.03 sec
+[bwa_aln_core] 1835008 sequences have been processed.
+[bwa_aln_core] calculate SA coordinate... 72.67 sec
+[bwa_aln_core] write to the disk... 0.02 sec
+[bwa_aln_core] 2097152 sequences have been processed.
+[bwa_aln_core] calculate SA coordinate... 78.61 sec
+[bwa_aln_core] write to the disk... 0.06 sec
+[bwa_aln_core] 2359296 sequences have been processed.
+[bwa_aln_core] calculate SA coordinate... 84.44 sec
+[bwa_aln_core] write to the disk... 0.04 sec
+[bwa_aln_core] 2621440 sequences have been processed.
+[bwa_aln_core] calculate SA coordinate... 79.77 sec
+[bwa_aln_core] write to the disk... 0.03 sec
+[bwa_aln_core] 2883584 sequences have been processed.
+[bwa_aln_core] calculate SA coordinate... 78.15 sec
+[bwa_aln_core] write to the disk... 0.04 sec
+[bwa_aln_core] 3145728 sequences have been processed.
+[bwa_aln_core] calculate SA coordinate... 72.68 sec
+[bwa_aln_core] write to the disk... 0.03 sec
+[bwa_aln_core] 3407872 sequences have been processed.
+[bwa_aln_core] calculate SA coordinate... 78.78 sec
+[bwa_aln_core] write to the disk... 0.03 sec
+[bwa_aln_core] 3670016 sequences have been processed.
+[bwa_aln_core] calculate SA coordinate... 75.17 sec
+[bwa_aln_core] write to the disk... 0.06 sec
+[bwa_aln_core] 3932160 sequences have been processed.
+[bwa_aln_core] calculate SA coordinate... 79.80 sec
+[bwa_aln_core] write to the disk... 0.05 sec
+[bwa_aln_core] 4194304 sequences have been processed.
+[bwa_aln_core] calculate SA coordinate... 81.10 sec
+[bwa_aln_core] write to the disk... 0.04 sec
+[bwa_aln_core] 4456448 sequences have been processed.
+[bwa_aln_core] calculate SA coordinate... 72.79 sec
+[bwa_aln_core] write to the disk... 0.03 sec
+[bwa_aln_core] 4718592 sequences have been processed.
+[bwa_aln_core] calculate SA coordinate... 79.25 sec
+[bwa_aln_core] write to the disk... 0.04 sec
+[bwa_aln_core] 4980736 sequences have been processed.
+[bwa_aln_core] calculate SA coordinate... 82.07 sec
+[bwa_aln_core] write to the disk... 0.04 sec
+[bwa_aln_core] 5242880 sequences have been processed.
+[bwa_aln_core] calculate SA coordinate... 85.58 sec
+[bwa_aln_core] write to the disk... 0.05 sec
+[bwa_aln_core] 5505024 sequences have been processed.
+[bwa_aln_core] calculate SA coordinate... 85.64 sec
+[bwa_aln_core] write to the disk... 0.04 sec
+[bwa_aln_core] 5767168 sequences have been processed.
+[bwa_aln_core] calculate SA coordinate... 89.27 sec
+[bwa_aln_core] write to the disk... 0.03 sec
+[bwa_aln_core] 6029312 sequences have been processed.
+[bwa_aln_core] calculate SA coordinate... 102.68 sec
+[bwa_aln_core] write to the disk... 0.03 sec
+[bwa_aln_core] 6291456 sequences have been processed.
+[bwa_aln_core] calculate SA coordinate... 86.53 sec
+[bwa_aln_core] write to the disk... 0.04 sec
+[bwa_aln_core] 6553600 sequences have been processed.
+[bwa_aln_core] calculate SA coordinate... 86.97 sec
+[bwa_aln_core] write to the disk... 0.04 sec
+[bwa_aln_core] 6815744 sequences have been processed.
+[bwa_aln_core] calculate SA coordinate... 86.52 sec
+[bwa_aln_core] write to the disk... 0.03 sec
+[bwa_aln_core] 7077888 sequences have been processed.
+[bwa_aln_core] calculate SA coordinate... 82.64 sec
+[bwa_aln_core] write to the disk... 0.03 sec
+[bwa_aln_core] 7340032 sequences have been processed.
+[bwa_aln_core] calculate SA coordinate... 86.51 sec
+[bwa_aln_core] write to the disk... 0.04 sec
+[bwa_aln_core] 7602176 sequences have been processed.
+[bwa_aln_core] calculate SA coordinate... 88.49 sec
+[bwa_aln_core] write to the disk... 0.04 sec
+[bwa_aln_core] 7864320 sequences have been processed.
+[bwa_aln_core] calculate SA coordinate... 82.30 sec
+[bwa_aln_core] write to the disk... 0.05 sec
+[bwa_aln_core] 8126464 sequences have been processed.
+[bwa_aln_core] calculate SA coordinate... 90.22 sec
+[bwa_aln_core] write to the disk... 0.04 sec
+[bwa_aln_core] 8388608 sequences have been processed.
+[bwa_aln_core] calculate SA coordinate... 93.75 sec
+[bwa_aln_core] write to the disk... 0.04 sec
+[bwa_aln_core] 8650752 sequences have been processed.
+[bwa_aln_core] calculate SA coordinate... 82.88 sec
+[bwa_aln_core] write to the disk... 0.04 sec
+[bwa_aln_core] 8912896 sequences have been processed.
+[bwa_aln_core] calculate SA coordinate... 97.13 sec
+[bwa_aln_core] write to the disk... 0.06 sec
+[bwa_aln_core] 9175040 sequences have been processed.
+[bwa_aln_core] calculate SA coordinate... 93.52 sec
+[bwa_aln_core] write to the disk... 0.03 sec
+[bwa_aln_core] 9437184 sequences have been processed.
+[bwa_aln_core] calculate SA coordinate... 87.05 sec
+[bwa_aln_core] write to the disk... 0.04 sec
+[bwa_aln_core] 9699328 sequences have been processed.
+[bwa_aln_core] calculate SA coordinate... 81.09 sec
+[bwa_aln_core] write to the disk... 0.05 sec
+[bwa_aln_core] 9961472 sequences have been processed.
+[bwa_aln_core] calculate SA coordinate... 92.05 sec
+[bwa_aln_core] write to the disk... 0.07 sec
+[bwa_aln_core] 10223616 sequences have been processed.
+[bwa_aln_core] calculate SA coordinate... 76.49 sec
+[bwa_aln_core] write to the disk... 0.04 sec
+[bwa_aln_core] 10485760 sequences have been processed.
+[bwa_aln_core] calculate SA coordinate... 78.19 sec
+[bwa_aln_core] write to the disk... 0.04 sec
+[bwa_aln_core] 10747904 sequences have been processed.
+[bwa_aln_core] calculate SA coordinate... 76.97 sec
+[bwa_aln_core] write to the disk... 0.04 sec
+[bwa_aln_core] 11010048 sequences have been processed.
+[bwa_aln_core] calculate SA coordinate... 75.53 sec
+[bwa_aln_core] write to the disk... 0.04 sec
+[bwa_aln_core] 11272192 sequences have been processed.
+[bwa_aln_core] calculate SA coordinate... 86.79 sec
+[bwa_aln_core] write to the disk... 0.06 sec
+[bwa_aln_core] 11534336 sequences have been processed.
+[bwa_aln_core] calculate SA coordinate... 94.55 sec
+[bwa_aln_core] write to the disk... 0.04 sec
+[bwa_aln_core] 11796480 sequences have been processed.
+[bwa_aln_core] calculate SA coordinate... 92.44 sec
+[bwa_aln_core] write to the disk... 0.04 sec
+[bwa_aln_core] 12058624 sequences have been processed.
+[bwa_aln_core] calculate SA coordinate... 90.75 sec
+[bwa_aln_core] write to the disk... 0.04 sec
+[bwa_aln_core] 12320768 sequences have been processed.
+[bwa_aln_core] calculate SA coordinate... 86.17 sec
+[bwa_aln_core] write to the disk... 0.04 sec
+[bwa_aln_core] 12582912 sequences have been processed.
+[bwa_aln_core] calculate SA coordinate... 90.23 sec
+[bwa_aln_core] write to the disk... 0.05 sec
+[bwa_aln_core] 12845056 sequences have been processed.
+[bwa_aln_core] calculate SA coordinate... 94.67 sec
+[bwa_aln_core] write to the disk... 0.06 sec
+[bwa_aln_core] 13107200 sequences have been processed.
+[bwa_aln_core] calculate SA coordinate... 95.40 sec
+[bwa_aln_core] write to the disk... 0.05 sec
+[bwa_aln_core] 13369344 sequences have been processed.
+[bwa_aln_core] calculate SA coordinate... 90.47 sec
+[bwa_aln_core] write to the disk... 0.04 sec
+[bwa_aln_core] 13631488 sequences have been processed.
+[bwa_aln_core] calculate SA coordinate... 146.57 sec
+[bwa_aln_core] write to the disk... 0.05 sec
+[bwa_aln_core] 13893632 sequences have been processed.
+[bwa_aln_core] calculate SA coordinate... 108.96 sec
+[bwa_aln_core] write to the disk... 0.07 sec
+[bwa_aln_core] 14155776 sequences have been processed.
+[bwa_aln_core] calculate SA coordinate... 94.53 sec
+[bwa_aln_core] write to the disk... 0.04 sec
+[bwa_aln_core] 14417920 sequences have been processed.
+[bwa_aln_core] calculate SA coordinate... 89.11 sec
+[bwa_aln_core] write to the disk... 0.04 sec
+[bwa_aln_core] 14680064 sequences have been processed.
+[bwa_aln_core] calculate SA coordinate... 90.11 sec
+[bwa_aln_core] write to the disk... 0.03 sec
+[bwa_aln_core] 14942208 sequences have been processed.
+[bwa_aln_core] calculate SA coordinate... 94.97 sec
+[bwa_aln_core] write to the disk... 0.04 sec
+[bwa_aln_core] 15204352 sequences have been processed.
+[bwa_aln_core] calculate SA coordinate... 95.66 sec
+[bwa_aln_core] write to the disk... 0.03 sec
+[bwa_aln_core] 15466496 sequences have been processed.
+[bwa_aln_core] calculate SA coordinate... 89.71 sec
+[bwa_aln_core] write to the disk... 0.03 sec
+[bwa_aln_core] 15728640 sequences have been processed.
+[bwa_aln_core] calculate SA coordinate... 93.22 sec
+[bwa_aln_core] write to the disk... 0.03 sec
+[bwa_aln_core] 15990784 sequences have been processed.
+[bwa_aln_core] calculate SA coordinate... 86.69 sec
+[bwa_aln_core] write to the disk... 0.04 sec
+[bwa_aln_core] 16252928 sequences have been processed.
+[bwa_aln_core] calculate SA coordinate... 90.64 sec
+[bwa_aln_core] write to the disk... 0.03 sec
+[bwa_aln_core] 16515072 sequences have been processed.
+[bwa_aln_core] calculate SA coordinate... 93.20 sec
+[bwa_aln_core] write to the disk... 0.06 sec
+[bwa_aln_core] 16777216 sequences have been processed.
+[bwa_aln_core] calculate SA coordinate... 92.72 sec
+[bwa_aln_core] write to the disk... 0.05 sec
+[bwa_aln_core] 17039360 sequences have been processed.
+[bwa_aln_core] calculate SA coordinate... 91.35 sec
+[bwa_aln_core] write to the disk... 0.04 sec
+[bwa_aln_core] 17301504 sequences have been processed.
+[bwa_aln_core] calculate SA coordinate... 81.05 sec
+[bwa_aln_core] write to the disk... 0.04 sec
+[bwa_aln_core] 17563648 sequences have been processed.
+[bwa_aln_core] calculate SA coordinate... 88.68 sec
+[bwa_aln_core] write to the disk... 0.04 sec
+[bwa_aln_core] 17825792 sequences have been processed.
+[bwa_aln_core] calculate SA coordinate... 85.50 sec
+[bwa_aln_core] write to the disk... 0.04 sec
+[bwa_aln_core] 18087936 sequences have been processed.
+[bwa_aln_core] calculate SA coordinate... 83.76 sec
+[bwa_aln_core] write to the disk... 0.04 sec
+[bwa_aln_core] 18350080 sequences have been processed.
+[bwa_aln_core] calculate SA coordinate... 85.81 sec
+[bwa_aln_core] write to the disk... 0.04 sec
+[bwa_aln_core] 18612224 sequences have been processed.
+[bwa_aln_core] calculate SA coordinate... 93.76 sec
+[bwa_aln_core] write to the disk... 0.03 sec
+[bwa_aln_core] 18874368 sequences have been processed.
+[bwa_aln_core] calculate SA coordinate... 89.74 sec
+[bwa_aln_core] write to the disk... 0.04 sec
+[bwa_aln_core] 19136512 sequences have been processed.
+[bwa_aln_core] calculate SA coordinate... 87.08 sec
+[bwa_aln_core] write to the disk... 0.04 sec
+[bwa_aln_core] 19398656 sequences have been processed.
+[bwa_aln_core] calculate SA coordinate... 93.05 sec
+[bwa_aln_core] write to the disk... 0.04 sec
+[bwa_aln_core] 19660800 sequences have been processed.
+[bwa_aln_core] calculate SA coordinate... 90.65 sec
+[bwa_aln_core] write to the disk... 0.04 sec
+[bwa_aln_core] 19922944 sequences have been processed.
+[bwa_aln_core] calculate SA coordinate... 94.14 sec
+[bwa_aln_core] write to the disk... 0.05 sec
+[bwa_aln_core] 20185088 sequences have been processed.
+[bwa_aln_core] calculate SA coordinate... 94.61 sec
+[bwa_aln_core] write to the disk... 0.04 sec
+[bwa_aln_core] 20447232 sequences have been processed.
+[bwa_aln_core] calculate SA coordinate... 92.61 sec
+[bwa_aln_core] write to the disk... 0.04 sec
+[bwa_aln_core] 20709376 sequences have been processed.
+[bwa_aln_core] calculate SA coordinate... 87.66 sec
+[bwa_aln_core] write to the disk... 0.03 sec
+[bwa_aln_core] 20971520 sequences have been processed.
+[bwa_aln_core] calculate SA coordinate... 87.97 sec
+[bwa_aln_core] write to the disk... 0.05 sec
+[bwa_aln_core] 21233664 sequences have been processed.
+[bwa_aln_core] calculate SA coordinate... 86.61 sec
+[bwa_aln_core] write to the disk... 0.04 sec
+[bwa_aln_core] 21495808 sequences have been processed.
+[bwa_aln_core] calculate SA coordinate... 84.88 sec
+[bwa_aln_core] write to the disk... 0.04 sec
+[bwa_aln_core] 21757952 sequences have been processed.
+[bwa_aln_core] calculate SA coordinate... 95.51 sec
+[bwa_aln_core] write to the disk... 0.05 sec
+[bwa_aln_core] 22020096 sequences have been processed.
+[bwa_aln_core] calculate SA coordinate... 83.84 sec
+[bwa_aln_core] write to the disk... 0.04 sec
+[bwa_aln_core] 22282240 sequences have been processed.
+[bwa_aln_core] calculate SA coordinate... 89.48 sec
+[bwa_aln_core] write to the disk... 0.03 sec
+[bwa_aln_core] 22544384 sequences have been processed.
+[bwa_aln_core] calculate SA coordinate... 86.50 sec
+[bwa_aln_core] write to the disk... 0.03 sec
+[bwa_aln_core] 22806528 sequences have been processed.
+[bwa_aln_core] calculate SA coordinate... 86.14 sec
+[bwa_aln_core] write to the disk... 0.05 sec
+[bwa_aln_core] 23068672 sequences have been processed.
+[bwa_aln_core] calculate SA coordinate... 

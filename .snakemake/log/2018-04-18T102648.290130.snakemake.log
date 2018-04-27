@@ -1,0 +1,73 @@
+Building DAG of jobs...
+
+rule fastqc:
+    input: raw_files/fastq/FT_SAMN03496012/SRR1983926-H3K4me1_1_pass.fastq.gz
+    output: results/fastqc/FT_SAMN03496012/SRR1983926-H3K4me1_1_pass_fastqc.html, results/fastqc/FT_SAMN03496012/SRR1983926-H3K4me1_1_pass_fastqc.zip
+    jobid: 24
+    wildcards: sample=SRR1983926-H3K4me1_1
+
+
+rule fastqc:
+    input: raw_files/fastq/FT_SAMN03496012/SRR1983934-H3K4me1_1_pass.fastq.gz
+    output: results/fastqc/FT_SAMN03496012/SRR1983934-H3K4me1_1_pass_fastqc.html, results/fastqc/FT_SAMN03496012/SRR1983934-H3K4me1_1_pass_fastqc.zip
+    jobid: 15
+    wildcards: sample=SRR1983934-H3K4me1_1
+
+
+rule fastqc:
+    input: raw_files/fastq/FT_SAMN03496012/SRR1983936-input_2_pass.fastq.gz
+    output: results/fastqc/FT_SAMN03496012/SRR1983936-input_2_pass_fastqc.html, results/fastqc/FT_SAMN03496012/SRR1983936-input_2_pass_fastqc.zip
+    jobid: 27
+    wildcards: sample=SRR1983936-input_2
+
+
+rule fastqc:
+    input: raw_files/fastq/FT_SAMN03496012/SRR1983928-input_2_pass.fastq.gz
+    output: results/fastqc/FT_SAMN03496012/SRR1983928-input_2_pass_fastqc.html, results/fastqc/FT_SAMN03496012/SRR1983928-input_2_pass_fastqc.zip
+    jobid: 5
+    wildcards: sample=SRR1983928-input_2
+
+
+rule fastqc:
+    input: raw_files/fastq/FT_SAMN03496012/SRR1983935-H3K4me1_2_pass.fastq.gz
+    output: results/fastqc/FT_SAMN03496012/SRR1983935-H3K4me1_2_pass_fastqc.html, results/fastqc/FT_SAMN03496012/SRR1983935-H3K4me1_2_pass_fastqc.zip
+    jobid: 29
+    wildcards: sample=SRR1983935-H3K4me1_2
+
+
+rule fastqc:
+    input: raw_files/fastq/FT_SAMN03496012/SRR1983929-input_1_pass.fastq.gz
+    output: results/fastqc/FT_SAMN03496012/SRR1983929-input_1_pass_fastqc.html, results/fastqc/FT_SAMN03496012/SRR1983929-input_1_pass_fastqc.zip
+    jobid: 10
+    wildcards: sample=SRR1983929-input_1
+
+
+rule fastqc:
+    input: raw_files/fastq/FT_SAMN03496012/SRR1983927-H3K4me1_2_pass.fastq.gz
+    output: results/fastqc/FT_SAMN03496012/SRR1983927-H3K4me1_2_pass_fastqc.html, results/fastqc/FT_SAMN03496012/SRR1983927-H3K4me1_2_pass_fastqc.zip
+    jobid: 1
+    wildcards: sample=SRR1983927-H3K4me1_2
+
+
+rule fastqc:
+    input: raw_files/fastq/FT_SAMN03496012/SRR1983933-H3K27ac_2_pass.fastq.gz
+    output: results/fastqc/FT_SAMN03496012/SRR1983933-H3K27ac_2_pass_fastqc.html, results/fastqc/FT_SAMN03496012/SRR1983933-H3K27ac_2_pass_fastqc.zip
+    jobid: 22
+    wildcards: sample=SRR1983933-H3K27ac_2
+
+
+rule fastqc:
+    input: raw_files/fastq/FT_SAMN03496012/SRR1983932-H3K27ac_1_pass.fastq.gz
+    output: results/fastqc/FT_SAMN03496012/SRR1983932-H3K27ac_1_pass_fastqc.html, results/fastqc/FT_SAMN03496012/SRR1983932-H3K27ac_1_pass_fastqc.zip
+    jobid: 23
+    wildcards: sample=SRR1983932-H3K27ac_1
+
+
+rule fastqc:
+    input: raw_files/fastq/FT_SAMN03496012/SRR1983937-input_1_pass.fastq.gz
+    output: results/fastqc/FT_SAMN03496012/SRR1983937-input_1_pass_fastqc.html, results/fastqc/FT_SAMN03496012/SRR1983937-input_1_pass_fastqc.zip
+    jobid: 7
+    wildcards: sample=SRR1983937-input_1
+
+Terminating processes on user request.
+Complete log: /share/ScratchGeneral/jamtor/projects/hgsoc_repeats/histone-ChIP-seq/.snakemake/log/2018-04-18T102648.290130.snakemake.log

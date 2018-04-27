@@ -1,0 +1,27 @@
+Building DAG of jobs...
+Using shell: /bin/bash
+Provided cores: 1
+Rules claiming more threads will be scaled down.
+Job counts:
+	count	jobs
+	1	all
+	1	spp
+	2
+
+rule spp:
+    input: results/bwa/smtest/SRR600559-H3K27me3.sorted.rmdup.bam
+    output: results/spp/smtest/SRR600559-H3K27me3.spp.result
+    jobid: 2
+    wildcards: sample=SRR600559-H3K27me3
+
+Finished job 2.
+1 of 2 steps (50%) done
+
+localrule all:
+    input: results/spp/smtest/SRR600559-H3K27me3.spp.result, results/bwa/smtest/SRR600559-H3K27me3.sorted.bam.bai, genomes/repeats/bwa/hg38_ercc_all_repbase.bwa.amb, results/fastqc/smtest/SRR600559-H3K27me3_pass_fastqc.html
+    jobid: 0
+
+Finished job 0.
+2 of 2 steps (100%) done
+Shutting down, this might take some time.
+Complete log: /share/ScratchGeneral/jamtor/projects/hgsoc_repeats/histone-ChIP-seq/.snakemake/log/2018-04-16T161551.254726.snakemake.log

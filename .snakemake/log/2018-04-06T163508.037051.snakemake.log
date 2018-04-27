@@ -1,0 +1,4 @@
+Building DAG of jobs...
+MissingInputException in line 45 of /share/ScratchGeneral/jamtor/projects/hgsoc_repeats/histone-ChIP-seq/Snakefile:
+Missing input files for rule all:
+genomes/repeats/bwa/hg38_ercc_all_repbase.bwa.amb

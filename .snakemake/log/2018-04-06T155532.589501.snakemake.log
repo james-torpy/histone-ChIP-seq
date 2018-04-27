@@ -1,0 +1,4 @@
+FileExistsError in line 25 of /share/ScratchGeneral/jamtor/projects/hgsoc_repeats/histone-ChIP-seq/Snakefile:
+[Errno 17] File exists: '/share/ScratchGeneral/jamtor//projects/hgsoc_repeats/histone-ChIP-seq/raw_files/sra/HGSOC_SAMN01761041/'
+  File "/share/ScratchGeneral/jamtor/projects/hgsoc_repeats/histone-ChIP-seq/Snakefile", line 25, in <module>
+  File "/home/jamtor/local/bin/miniconda2/envs/snakemake/lib/python3.6/os.py", line 220, in makedirs

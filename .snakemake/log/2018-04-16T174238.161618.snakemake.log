@@ -1,0 +1,150 @@
+Building DAG of jobs...
+Using shell: /bin/bash
+Provided cores: 2
+Rules claiming more threads will be scaled down.
+Job counts:
+	count	jobs
+	1	all
+	2	bwa_align
+	2	bwa_samse
+	2	fastqc
+	2	remove_dupes
+	2	samtools_filter
+	2	samtools_index
+	2	spp
+	15
+
+rule fastqc:
+    input: raw_files/fastq/HGSOC_lines_SAMN07349584/SRR5823946_pass.fastq.gz
+    output: results/fastqc/HGSOC_lines_SAMN07349584/SRR5823946_pass_fastqc.html, results/fastqc/HGSOC_lines_SAMN07349584/SRR5823946_pass_fastqc.zip
+    jobid: 3
+    wildcards: sample=SRR5823946
+
+
+rule fastqc:
+    input: raw_files/fastq/HGSOC_lines_SAMN07349584/SRR5823947_pass.fastq.gz
+    output: results/fastqc/HGSOC_lines_SAMN07349584/SRR5823947_pass_fastqc.html, results/fastqc/HGSOC_lines_SAMN07349584/SRR5823947_pass_fastqc.zip
+    jobid: 2
+    wildcards: sample=SRR5823947
+
+Finished job 2.
+1 of 15 steps (7%) done
+
+rule bwa_align:
+    input: raw_files/fastq/HGSOC_lines_SAMN07349584/SRR5823947_pass.fastq.gz, results/fastqc/HGSOC_lines_SAMN07349584/SRR5823947_pass_fastqc.html
+    output: results/bwa/HGSOC_lines_SAMN07349584/SRR5823947.sai
+    jobid: 13
+    wildcards: sample=SRR5823947
+
+Finished job 3.
+2 of 15 steps (13%) done
+
+rule bwa_align:
+    input: raw_files/fastq/HGSOC_lines_SAMN07349584/SRR5823946_pass.fastq.gz, results/fastqc/HGSOC_lines_SAMN07349584/SRR5823946_pass_fastqc.html
+    output: results/bwa/HGSOC_lines_SAMN07349584/SRR5823946.sai
+    jobid: 14
+    wildcards: sample=SRR5823946
+
+Finished job 13.
+3 of 15 steps (20%) done
+
+rule bwa_samse:
+    input: results/bwa/HGSOC_lines_SAMN07349584/SRR5823947.sai, raw_files/fastq/HGSOC_lines_SAMN07349584/SRR5823947_pass.fastq.gz
+    output: results/bwa/HGSOC_lines_SAMN07349584/SRR5823947.sam
+    jobid: 11
+    wildcards: sample=SRR5823947
+
+Finished job 14.
+4 of 15 steps (27%) done
+
+rule bwa_samse:
+    input: results/bwa/HGSOC_lines_SAMN07349584/SRR5823946.sai, raw_files/fastq/HGSOC_lines_SAMN07349584/SRR5823946_pass.fastq.gz
+    output: results/bwa/HGSOC_lines_SAMN07349584/SRR5823946.sam
+    jobid: 12
+    wildcards: sample=SRR5823946
+
+Finished job 11.
+5 of 15 steps (33%) done
+
+rule samtools_filter:
+    input: results/bwa/HGSOC_lines_SAMN07349584/SRR5823947.sam
+    output: results/bwa/HGSOC_lines_SAMN07349584/SRR5823947.sorted.bam
+    jobid: 7
+    wildcards: sample=SRR5823947
+
+Finished job 7.
+6 of 15 steps (40%) done
+
+rule samtools_index:
+    input: results/bwa/HGSOC_lines_SAMN07349584/SRR5823947.sorted.bam
+    output: results/bwa/HGSOC_lines_SAMN07349584/SRR5823947.sorted.bam.bai
+    jobid: 1
+    wildcards: sample=SRR5823947
+
+Finished job 1.
+7 of 15 steps (47%) done
+
+rule remove_dupes:
+    input: results/bwa/HGSOC_lines_SAMN07349584/SRR5823947.sorted.bam, results/bwa/HGSOC_lines_SAMN07349584/SRR5823947.sorted.bam.bai
+    output: results/bwa/HGSOC_lines_SAMN07349584/SRR5823947.sorted.rmdup.bam, results/bwa/HGSOC_lines_SAMN07349584/SRR5823947.sorted.rmdupmet.bam
+    jobid: 10
+    wildcards: sample=SRR5823947
+
+Finished job 10.
+8 of 15 steps (53%) done
+
+rule spp:
+    input: results/bwa/HGSOC_lines_SAMN07349584/SRR5823947.sorted.rmdup.bam
+    output: results/spp/HGSOC_lines_SAMN07349584/SRR5823947.spp.result
+    jobid: 6
+    wildcards: sample=SRR5823947
+
+Finished job 12.
+9 of 15 steps (60%) done
+
+rule samtools_filter:
+    input: results/bwa/HGSOC_lines_SAMN07349584/SRR5823946.sam
+    output: results/bwa/HGSOC_lines_SAMN07349584/SRR5823946.sorted.bam
+    jobid: 9
+    wildcards: sample=SRR5823946
+
+Finished job 9.
+10 of 15 steps (67%) done
+
+rule samtools_index:
+    input: results/bwa/HGSOC_lines_SAMN07349584/SRR5823946.sorted.bam
+    output: results/bwa/HGSOC_lines_SAMN07349584/SRR5823946.sorted.bam.bai
+    jobid: 5
+    wildcards: sample=SRR5823946
+
+Finished job 5.
+11 of 15 steps (73%) done
+
+rule remove_dupes:
+    input: results/bwa/HGSOC_lines_SAMN07349584/SRR5823946.sorted.bam, results/bwa/HGSOC_lines_SAMN07349584/SRR5823946.sorted.bam.bai
+    output: results/bwa/HGSOC_lines_SAMN07349584/SRR5823946.sorted.rmdup.bam, results/bwa/HGSOC_lines_SAMN07349584/SRR5823946.sorted.rmdupmet.bam
+    jobid: 8
+    wildcards: sample=SRR5823946
+
+Finished job 8.
+12 of 15 steps (80%) done
+
+rule spp:
+    input: results/bwa/HGSOC_lines_SAMN07349584/SRR5823946.sorted.rmdup.bam
+    output: results/spp/HGSOC_lines_SAMN07349584/SRR5823946.spp.result
+    jobid: 4
+    wildcards: sample=SRR5823946
+
+Finished job 6.
+13 of 15 steps (87%) done
+Finished job 4.
+14 of 15 steps (93%) done
+
+localrule all:
+    input: results/spp/HGSOC_lines_SAMN07349584/SRR5823946.spp.result, results/spp/HGSOC_lines_SAMN07349584/SRR5823947.spp.result, results/bwa/HGSOC_lines_SAMN07349584/SRR5823946.sorted.bam.bai, results/bwa/HGSOC_lines_SAMN07349584/SRR5823947.sorted.bam.bai, genomes/repeats/bwa/hg38_ercc_all_repbase.bwa.amb, genomes/repeats/bwa/hg38_ercc_all_repbase.bwa.amb, results/fastqc/HGSOC_lines_SAMN07349584/SRR5823946_pass_fastqc.html, results/fastqc/HGSOC_lines_SAMN07349584/SRR5823947_pass_fastqc.html
+    jobid: 0
+
+Finished job 0.
+15 of 15 steps (100%) done
+Shutting down, this might take some time.
+Complete log: /share/ScratchGeneral/jamtor/projects/hgsoc_repeats/histone-ChIP-seq/.snakemake/log/2018-04-16T174238.161618.snakemake.log

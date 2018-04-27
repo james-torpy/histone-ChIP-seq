@@ -1,0 +1,63 @@
+Building DAG of jobs...
+Using shell: /bin/bash
+Provided cores: 3
+Rules claiming more threads will be scaled down.
+Job counts:
+	count	jobs
+	1	all
+	10	macs_broad
+	10	macs_narrow
+	21
+
+rule macs_broad:
+    input: results/bwa/FT_SAMN03496012/SRR1983936-input_2.sorted.rmdup.bam
+    output: results/macs2/FT_SAMN03496012/SRR1983936-input_2_peaks.broadPeak
+    jobid: 12
+    wildcards: sample=SRR1983936-input_2
+
+
+rule macs_narrow:
+    input: results/bwa/FT_SAMN03496012/SRR1983936-input_2.sorted.rmdup.bam
+    output: results/macs2/FT_SAMN03496012/SRR1983936-input_2_peaks.narrowPeak
+    jobid: 45
+    wildcards: sample=SRR1983936-input_2
+
+rule macs_broad:
+    input: results/bwa/FT_SAMN03496012/SRR1983929-input_1.sorted.rmdup.bam
+    output: results/macs2/FT_SAMN03496012/SRR1983929-input_1_peaks.broadPeak
+    jobid: 4
+    wildcards: sample=SRR1983929-input_1
+
+Error in rule macs_broad:
+    jobid: 12
+    output: results/macs2/FT_SAMN03496012/SRR1983936-input_2_peaks.broadPeak
+
+RuleException:
+CalledProcessError in line 197 of /share/ScratchGeneral/jamtor/projects/hgsoc_repeats/histone-ChIP-seq/Snakefile:
+Command ' set -euo pipefail;  source activate p2.7env; /home/jamtor/local/lib/MACS/bin/macs2 callpeak -t results/bwa/FT_SAMN03496012/SRR1983936-input_2.sorted.rmdup.bam -c SRR1983929-input_1 --broad --name "SRR1983936-input_2" --outdir results/macs2/FT_SAMN03496012/ ' returned non-zero exit status 1.
+  File "/share/ScratchGeneral/jamtor/projects/hgsoc_repeats/histone-ChIP-seq/Snakefile", line 197, in __rule_macs_broad
+  File "/home/jamtor/local/bin/miniconda2/envs/snakemake/lib/python3.6/concurrent/futures/thread.py", line 56, in run
+Will exit after finishing currently running jobs.
+Error in rule macs_narrow:
+    jobid: 45
+    output: results/macs2/FT_SAMN03496012/SRR1983936-input_2_peaks.narrowPeak
+
+RuleException:
+CalledProcessError in line 183 of /share/ScratchGeneral/jamtor/projects/hgsoc_repeats/histone-ChIP-seq/Snakefile:
+Command ' set -euo pipefail;  source activate p2.7env; /home/jamtor/local/lib/MACS/bin/macs2 callpeak -t results/bwa/FT_SAMN03496012/SRR1983936-input_2.sorted.rmdup.bam -c SRR1983929-input_1 --name "SRR1983936-input_2" --outdir results/macs2/FT_SAMN03496012/ ' returned non-zero exit status 1.
+  File "/share/ScratchGeneral/jamtor/projects/hgsoc_repeats/histone-ChIP-seq/Snakefile", line 183, in __rule_macs_narrow
+  File "/home/jamtor/local/bin/miniconda2/envs/snakemake/lib/python3.6/concurrent/futures/thread.py", line 56, in run
+Will exit after finishing currently running jobs.
+Error in rule macs_broad:
+    jobid: 4
+    output: results/macs2/FT_SAMN03496012/SRR1983929-input_1_peaks.broadPeak
+
+RuleException:
+CalledProcessError in line 197 of /share/ScratchGeneral/jamtor/projects/hgsoc_repeats/histone-ChIP-seq/Snakefile:
+Command ' set -euo pipefail;  source activate p2.7env; /home/jamtor/local/lib/MACS/bin/macs2 callpeak -t results/bwa/FT_SAMN03496012/SRR1983929-input_1.sorted.rmdup.bam -c SRR1983929-input_1 --broad --name "SRR1983929-input_1" --outdir results/macs2/FT_SAMN03496012/ ' returned non-zero exit status 1.
+  File "/share/ScratchGeneral/jamtor/projects/hgsoc_repeats/histone-ChIP-seq/Snakefile", line 197, in __rule_macs_broad
+  File "/home/jamtor/local/bin/miniconda2/envs/snakemake/lib/python3.6/concurrent/futures/thread.py", line 56, in run
+Will exit after finishing currently running jobs.
+Shutting down, this might take some time.
+Exiting because a job execution failed. Look above for error message
+Complete log: /share/ScratchGeneral/jamtor/projects/hgsoc_repeats/histone-ChIP-seq/.snakemake/log/2018-04-27T092309.840251.snakemake.log

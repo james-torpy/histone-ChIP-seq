@@ -1,0 +1,113 @@
+Building DAG of jobs...
+Using shell: /bin/bash
+Provided cores: 1
+Rules claiming more threads will be scaled down.
+Job counts:
+	count	jobs
+	1	all
+	3	remove_dupes
+	3	samtools_filter
+	3	samtools_index
+	3	spp
+	13
+
+rule samtools_filter:
+    input: results/bwa/HGSOC_SAMN01761041/SRR600956-H3K4me3/SRR600956-H3K4me3.sam
+    output: results/bwa/HGSOC_SAMN01761041/SRR600956-H3K4me3/SRR600956-H3K4me3.sorted.bam
+    jobid: 11
+    wildcards: sample=SRR600956-H3K4me3
+
+Finished job 11.
+1 of 13 steps (8%) done
+
+rule samtools_filter:
+    input: results/bwa/HGSOC_SAMN01761041/SRR600983-input/SRR600983-input.sam
+    output: results/bwa/HGSOC_SAMN01761041/SRR600983-input/SRR600983-input.sorted.bam
+    jobid: 14
+    wildcards: sample=SRR600983-input
+
+Finished job 14.
+2 of 13 steps (15%) done
+
+rule samtools_filter:
+    input: results/bwa/HGSOC_SAMN01761041/SRR600559-H3K27me3/SRR600559-H3K27me3.sam
+    output: results/bwa/HGSOC_SAMN01761041/SRR600559-H3K27me3/SRR600559-H3K27me3.sorted.bam
+    jobid: 16
+    wildcards: sample=SRR600559-H3K27me3
+
+Finished job 16.
+3 of 13 steps (23%) done
+
+rule samtools_index:
+    input: results/bwa/HGSOC_SAMN01761041/SRR600983-input/SRR600983-input.sorted.bam
+    output: results/bwa/HGSOC_SAMN01761041/SRR600983-input/SRR600983-input.sorted.bam.bai
+    jobid: 5
+    wildcards: sample=SRR600983-input
+
+Finished job 5.
+4 of 13 steps (31%) done
+
+rule samtools_index:
+    input: results/bwa/HGSOC_SAMN01761041/SRR600956-H3K4me3/SRR600956-H3K4me3.sorted.bam
+    output: results/bwa/HGSOC_SAMN01761041/SRR600956-H3K4me3/SRR600956-H3K4me3.sorted.bam.bai
+    jobid: 2
+    wildcards: sample=SRR600956-H3K4me3
+
+Finished job 2.
+5 of 13 steps (38%) done
+
+rule samtools_index:
+    input: results/bwa/HGSOC_SAMN01761041/SRR600559-H3K27me3/SRR600559-H3K27me3.sorted.bam
+    output: results/bwa/HGSOC_SAMN01761041/SRR600559-H3K27me3/SRR600559-H3K27me3.sorted.bam.bai
+    jobid: 7
+    wildcards: sample=SRR600559-H3K27me3
+
+Finished job 7.
+6 of 13 steps (46%) done
+
+rule remove_dupes:
+    input: results/bwa/HGSOC_SAMN01761041/SRR600983-input/SRR600983-input.sorted.bam, results/bwa/HGSOC_SAMN01761041/SRR600983-input/SRR600983-input.sorted.bam.bai
+    output: results/bwa/HGSOC_SAMN01761041/SRR600983-input/SRR600983-input.sorted.rmdup.bam, results/bwa/HGSOC_SAMN01761041/SRR600983-input/SRR600983-input.sorted.rmdupmet.bam
+    jobid: 15
+    wildcards: sample=SRR600983-input
+
+Finished job 15.
+7 of 13 steps (54%) done
+
+rule remove_dupes:
+    input: results/bwa/HGSOC_SAMN01761041/SRR600956-H3K4me3/SRR600956-H3K4me3.sorted.bam, results/bwa/HGSOC_SAMN01761041/SRR600956-H3K4me3/SRR600956-H3K4me3.sorted.bam.bai
+    output: results/bwa/HGSOC_SAMN01761041/SRR600956-H3K4me3/SRR600956-H3K4me3.sorted.rmdup.bam, results/bwa/HGSOC_SAMN01761041/SRR600956-H3K4me3/SRR600956-H3K4me3.sorted.rmdupmet.bam
+    jobid: 18
+    wildcards: sample=SRR600956-H3K4me3
+
+Finished job 18.
+8 of 13 steps (62%) done
+
+rule remove_dupes:
+    input: results/bwa/HGSOC_SAMN01761041/SRR600559-H3K27me3/SRR600559-H3K27me3.sorted.bam, results/bwa/HGSOC_SAMN01761041/SRR600559-H3K27me3/SRR600559-H3K27me3.sorted.bam.bai
+    output: results/bwa/HGSOC_SAMN01761041/SRR600559-H3K27me3/SRR600559-H3K27me3.sorted.rmdup.bam, results/bwa/HGSOC_SAMN01761041/SRR600559-H3K27me3/SRR600559-H3K27me3.sorted.rmdupmet.bam
+    jobid: 10
+    wildcards: sample=SRR600559-H3K27me3
+
+Finished job 10.
+9 of 13 steps (69%) done
+
+rule spp:
+    input: results/bwa/HGSOC_SAMN01761041/SRR600983-input/SRR600983-input.sorted.rmdup.bam
+    output: results/spp/HGSOC_SAMN01761041/SRR600983-input/SRR600983-input.spp.result
+    jobid: 6
+    wildcards: sample=SRR600983-input
+
+Error in rule spp:
+    jobid: 6
+    output: results/spp/HGSOC_SAMN01761041/SRR600983-input/SRR600983-input.spp.result
+
+RuleException:
+CalledProcessError in line 100 of /share/ScratchGeneral/jamtor/projects/hgsoc_repeats/histone-ChIP-seq/Snakefile:
+Command ' set -euo pipefail;  Rscript /home/jamtor/local/lib/phantompeakqualtools/run_spp.R 		-c=results/bwa/HGSOC_SAMN01761041/SRR600983-input/SRR600983-input.sorted.rmdup.bam -i=results/bwa/HGSOC_SAMN01761041/SRR600983-input/SRR600983-input.sorted.rmdup.bam -savp -p=2 -odir=results/spp -out=results/spp/HGSOC_SAMN01761041/SRR600983-input/SRR600983-input.spp.result ' returned non-zero exit status 127.
+  File "/share/ScratchGeneral/jamtor/projects/hgsoc_repeats/histone-ChIP-seq/Snakefile", line 100, in __rule_spp
+  File "/home/jamtor/local/bin/miniconda2/envs/snakemake/lib/python3.6/concurrent/futures/thread.py", line 56, in run
+Will exit after finishing currently running jobs.
+Shutting down, this might take some time.
+Exiting because a job execution failed. Look above for error message
+Complete log: /share/ScratchGeneral/jamtor/projects/hgsoc_repeats/histone-ChIP-seq/.snakemake/log/2018-04-04T084218.857561.snakemake.log

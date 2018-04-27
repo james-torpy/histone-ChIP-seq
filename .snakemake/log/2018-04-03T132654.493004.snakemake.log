@@ -1,0 +1,27 @@
+Building DAG of jobs...
+Using shell: /bin/bash
+Provided cores: 1
+Rules claiming more threads will be scaled down.
+Job counts:
+	count	jobs
+	1	fastq_dump
+	1
+
+rule fastq_dump:
+    input: raw_files/sra/SRR600983.sra
+    output: raw_files/fastq/SRR600983.fastq.gz
+    jobid: 0
+    wildcards: sample=SRR600983
+
+fastq-dump --outdir /share/ScratchGeneral/jamtor/projects/hgsoc_repeats/histone-ChIP-seq//raw_files//sra/fastq/ --gzip --skip-technical  --readids --read-filter pass --dumpbase --split-3 --clip raw_files/fastq/SRR600983.fastq.gz
+Terminating processes on user request.
+Cancelling snakemake on user request.
+Error in rule fastq_dump:
+    jobid: 0
+    output: raw_files/fastq/SRR600983.fastq.gz
+
+RuleException:
+CalledProcessError in line 13 of /share/ScratchGeneral/jamtor/projects/hgsoc_repeats/histone-ChIP-seq/Snakefile:
+Command ' set -euo pipefail;  fastq-dump --outdir /share/ScratchGeneral/jamtor/projects/hgsoc_repeats/histone-ChIP-seq//raw_files//sra/fastq/ --gzip --skip-technical  --readids --read-filter pass --dumpbase --split-3 --clip raw_files/fastq/SRR600983.fastq.gz ' returned non-zero exit status 3.
+  File "/share/ScratchGeneral/jamtor/projects/hgsoc_repeats/histone-ChIP-seq/Snakefile", line 13, in __rule_fastq_dump
+  File "/home/jamtor/local/bin/miniconda2/envs/snakemake/lib/python3.6/concurrent/futures/thread.py", line 56, in run

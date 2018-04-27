@@ -1,0 +1,39 @@
+Building DAG of jobs...
+Using shell: /bin/bash
+Provided cores: 3
+Rules claiming more threads will be scaled down.
+Job counts:
+	count	jobs
+	1	all
+	2	spp
+	3
+
+rule spp:
+    input: results/bwa/HGSOC_SAMN01761041/SRR600983-input.sorted.rmdup.bam
+    output: results/spp/HGSOC_SAMN01761041/SRR600983-input.spp.result
+    jobid: 8
+    wildcards: sample=SRR600983-input
+
+
+rule spp:
+    input: results/bwa/HGSOC_SAMN01761041/SRR600559-H3K27me3.sorted.rmdup.bam
+    output: results/spp/HGSOC_SAMN01761041/SRR600559-H3K27me3.spp.result
+    jobid: 9
+    wildcards: sample=SRR600559-H3K27me3
+
+Error in rule spp:
+    jobid: 9
+    output: results/spp/HGSOC_SAMN01761041/SRR600559-H3K27me3.spp.result
+
+RuleException:
+CalledProcessError in line 141 of /share/ScratchGeneral/jamtor/projects/hgsoc_repeats/histone-ChIP-seq/Snakefile:
+Command ' set -euo pipefail;  Rscript /home/jamtor/local/lib/phantompeakqualtools/run_spp.R 		-c=results/bwa/HGSOC_SAMN01761041/SRR600559-H3K27me3.sorted.rmdup.bam -i=results/bwa/HGSOC_SAMN01761041/SRR600559-H3K27me3.sorted.rmdup.bam -savp -p=2 -odir=results/spp -out=results/spp/HGSOC_SAMN01761041/SRR600559-H3K27me3.spp.result ' returned non-zero exit status 1.
+  File "/share/ScratchGeneral/jamtor/projects/hgsoc_repeats/histone-ChIP-seq/Snakefile", line 141, in __rule_spp
+  File "/home/jamtor/local/bin/miniconda2/envs/snakemake/lib/python3.6/concurrent/futures/thread.py", line 56, in run
+Will exit after finishing currently running jobs.
+Finished job 8.
+1 of 3 steps (33%) done
+Will exit after finishing currently running jobs.
+Shutting down, this might take some time.
+Exiting because a job execution failed. Look above for error message
+Complete log: /share/ScratchGeneral/jamtor/projects/hgsoc_repeats/histone-ChIP-seq/.snakemake/log/2018-04-17T182505.093066.snakemake.log

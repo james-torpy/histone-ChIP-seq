@@ -1,0 +1,4 @@
+Building DAG of jobs...
+MissingInputException in line 62 of /share/ScratchGeneral/jamtor/projects/hgsoc_repeats/histone-ChIP-seq/Snakefile:
+Missing input files for rule fastqc:
+raw_files/fastq/HGSOC_SAMN01761041/SRR600956-H3K4me3_pass.fastq.gz

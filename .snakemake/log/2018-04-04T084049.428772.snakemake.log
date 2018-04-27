@@ -1,0 +1,10 @@
+Building DAG of jobs...
+
+rule samtools_filter:
+    input: results/bwa/HGSOC_SAMN01761041/SRR600983-input/SRR600983-input.sam
+    output: results/bwa/HGSOC_SAMN01761041/SRR600983-input/SRR600983-input.sorted.bam
+    jobid: 16
+    wildcards: sample=SRR600983-input
+
+RuleException in line 64 of /share/ScratchGeneral/jamtor/projects/hgsoc_repeats/histone-ChIP-seq/Snakefile:
+NameError: The name 'sample' is unknown in this context. Please make sure that you defined that variable. Also note that braces not used for variable access have to be escaped by repeating them, i.e. {{print $1}}

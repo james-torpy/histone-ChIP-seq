@@ -1,0 +1,3 @@
+Building DAG of jobs...
+MissingRuleException:
+No rule to produce raw_files/fastq/HGSOC_SAMN01761041/SRR600983.fastq.gz (if you use input functions make sure that they don't raise unexpected exceptions).

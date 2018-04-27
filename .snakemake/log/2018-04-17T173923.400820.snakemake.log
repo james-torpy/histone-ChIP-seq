@@ -1,0 +1,24 @@
+Building DAG of jobs...
+Using shell: /bin/bash
+Provided cores: 2
+Rules claiming more threads will be scaled down.
+Job counts:
+	count	jobs
+	1	all
+	2	remove_dupes
+	3	spp
+	6
+
+rule remove_dupes:
+    input: results/bwa/HGSOC_SAMN01761041/SRR600559-H3K27me3.sorted.bam, results/bwa/HGSOC_SAMN01761041/SRR600559-H3K27me3.sorted.bam.bai
+    output: results/bwa/HGSOC_SAMN01761041/SRR600559-H3K27me3.sorted.rmdup.bam, results/bwa/HGSOC_SAMN01761041/SRR600559-H3K27me3.sorted.rmdupmet.bam
+    jobid: 12
+    wildcards: sample=SRR600559-H3K27me3
+
+
+rule remove_dupes:
+    input: results/bwa/HGSOC_SAMN01761041/SRR600983-input.sorted.bam, results/bwa/HGSOC_SAMN01761041/SRR600983-input.sorted.bam.bai
+    output: results/bwa/HGSOC_SAMN01761041/SRR600983-input.sorted.rmdup.bam, results/bwa/HGSOC_SAMN01761041/SRR600983-input.sorted.rmdupmet.bam
+    jobid: 10
+    wildcards: sample=SRR600983-input
+

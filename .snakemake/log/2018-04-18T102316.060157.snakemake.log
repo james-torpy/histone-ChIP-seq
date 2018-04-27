@@ -1,0 +1,45 @@
+Building DAG of jobs...
+Using shell: /bin/bash
+Provided cores: 3
+Rules claiming more threads will be scaled down.
+Job counts:
+	count	jobs
+	1	all
+	3	spp
+	4
+
+rule spp:
+    input: results/bwa/HGSOC_SAMN01761041/SRR600983-input.sorted.rmdup.bam
+    output: results/spp/HGSOC_SAMN01761041/SRR600983-input.spp.result
+    jobid: 1
+    wildcards: sample=SRR600983-input
+
+
+rule spp:
+    input: results/bwa/HGSOC_SAMN01761041/SRR600559-H3K27me3.sorted.rmdup.bam
+    output: results/spp/HGSOC_SAMN01761041/SRR600559-H3K27me3.spp.result
+    jobid: 8
+    wildcards: sample=SRR600559-H3K27me3
+
+
+rule spp:
+    input: results/bwa/HGSOC_SAMN01761041/SRR600956-H3K4me3.sorted.rmdup.bam
+    output: results/spp/HGSOC_SAMN01761041/SRR600956-H3K4me3.spp.result
+    jobid: 9
+    wildcards: sample=SRR600956-H3K4me3
+
+Finished job 8.
+1 of 4 steps (25%) done
+Finished job 1.
+2 of 4 steps (50%) done
+Finished job 9.
+3 of 4 steps (75%) done
+
+localrule all:
+    input: results/spp/HGSOC_SAMN01761041/SRR600559-H3K27me3.spp.result, results/spp/HGSOC_SAMN01761041/SRR600956-H3K4me3.spp.result, results/spp/HGSOC_SAMN01761041/SRR600983-input.spp.result, results/bwa/HGSOC_SAMN01761041/SRR600559-H3K27me3.sorted.bam.bai, results/bwa/HGSOC_SAMN01761041/SRR600956-H3K4me3.sorted.bam.bai, results/bwa/HGSOC_SAMN01761041/SRR600983-input.sorted.bam.bai, genomes/repeats/bwa/hg38_ercc_all_repbase.bwa.amb, genomes/repeats/bwa/hg38_ercc_all_repbase.bwa.amb, genomes/repeats/bwa/hg38_ercc_all_repbase.bwa.amb, results/fastqc/HGSOC_SAMN01761041/SRR600559-H3K27me3_pass_fastqc.html, results/fastqc/HGSOC_SAMN01761041/SRR600956-H3K4me3_pass_fastqc.html, results/fastqc/HGSOC_SAMN01761041/SRR600983-input_pass_fastqc.html
+    jobid: 0
+
+Finished job 0.
+4 of 4 steps (100%) done
+Shutting down, this might take some time.
+Complete log: /share/ScratchGeneral/jamtor/projects/hgsoc_repeats/histone-ChIP-seq/.snakemake/log/2018-04-18T102316.060157.snakemake.log

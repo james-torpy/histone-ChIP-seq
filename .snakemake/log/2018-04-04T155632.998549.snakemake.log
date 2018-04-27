@@ -1,0 +1,119 @@
+Building DAG of jobs...
+Using shell: /bin/bash
+Provided cores: 1
+Rules claiming more threads will be scaled down.
+Job counts:
+	count	jobs
+	1	all
+	10	bwa_align
+	10	bwa_samse
+	18	fastq_dump
+	10	fastqc
+	10	remove_dupes
+	10	samtools_filter
+	10	samtools_index
+	10	spp
+	89
+
+rule fastq_dump:
+    input: raw_files/sra/H3K27ac_cell_lines/SRR5823948-OVCAR-H3K27ac.sra, raw_files/sra/H3K27ac_cell_lines/SRR5823949-SKOV-H3K27ac.sra, raw_files/sra/H3K27ac_cell_lines/SRR1983924-H3K27ac_1.sra, raw_files/sra/H3K27ac_cell_lines/SRR1983925-H3K27ac_2.sra, raw_files/sra/H3K27ac_cell_lines/SRR1983932-H3K27ac_1.sra, raw_files/sra/H3K27ac_cell_lines/SRR1983933-H3K27ac_2.sra, raw_files/sra/H3K27ac_cell_lines/SRR1983928-input_2.sra, raw_files/sra/H3K27ac_cell_lines/SRR1983929-input_1.sra, raw_files/sra/H3K27ac_cell_lines/SRR1983936-input_2.sra, raw_files/sra/H3K27ac_cell_lines/SRR1983937-input_1.sra
+    output: raw_files/fastq/H3K27ac_cell_lines/SRR1983929-input_1_pass.fastq.gz
+    jobid: 31
+    wildcards: sample=SRR1983929-input_1
+
+Finished job 31.
+1 of 89 steps (1%) done
+
+rule fastq_dump:
+    input: raw_files/sra/H3K27ac_cell_lines/SRR5823948-OVCAR-H3K27ac.sra, raw_files/sra/H3K27ac_cell_lines/SRR5823949-SKOV-H3K27ac.sra, raw_files/sra/H3K27ac_cell_lines/SRR1983924-H3K27ac_1.sra, raw_files/sra/H3K27ac_cell_lines/SRR1983925-H3K27ac_2.sra, raw_files/sra/H3K27ac_cell_lines/SRR1983932-H3K27ac_1.sra, raw_files/sra/H3K27ac_cell_lines/SRR1983933-H3K27ac_2.sra, raw_files/sra/H3K27ac_cell_lines/SRR1983928-input_2.sra, raw_files/sra/H3K27ac_cell_lines/SRR1983929-input_1.sra, raw_files/sra/H3K27ac_cell_lines/SRR1983936-input_2.sra, raw_files/sra/H3K27ac_cell_lines/SRR1983937-input_1.sra
+    output: raw_files/fastq/H3K27ac_cell_lines/SRR1983936-input_2_pass.fastq.gz
+    jobid: 57
+    wildcards: sample=SRR1983936-input_2
+
+Warning: the following output files of rule fastq_dump were not present when the DAG was created:
+{'raw_files/fastq/H3K27ac_cell_lines/SRR1983936-input_2_pass.fastq.gz'}
+Finished job 57.
+2 of 89 steps (2%) done
+
+rule fastq_dump:
+    input: raw_files/sra/H3K27ac_cell_lines/SRR5823948-OVCAR-H3K27ac.sra, raw_files/sra/H3K27ac_cell_lines/SRR5823949-SKOV-H3K27ac.sra, raw_files/sra/H3K27ac_cell_lines/SRR1983924-H3K27ac_1.sra, raw_files/sra/H3K27ac_cell_lines/SRR1983925-H3K27ac_2.sra, raw_files/sra/H3K27ac_cell_lines/SRR1983932-H3K27ac_1.sra, raw_files/sra/H3K27ac_cell_lines/SRR1983933-H3K27ac_2.sra, raw_files/sra/H3K27ac_cell_lines/SRR1983928-input_2.sra, raw_files/sra/H3K27ac_cell_lines/SRR1983929-input_1.sra, raw_files/sra/H3K27ac_cell_lines/SRR1983936-input_2.sra, raw_files/sra/H3K27ac_cell_lines/SRR1983937-input_1.sra
+    output: raw_files/fastq/H3K27ac_cell_lines/SRR1983937-input_1_pass.fastq.gz
+    jobid: 36
+    wildcards: sample=SRR1983937-input_1
+
+Warning: the following output files of rule fastq_dump were not present when the DAG was created:
+{'raw_files/fastq/H3K27ac_cell_lines/SRR1983937-input_1_pass.fastq.gz'}
+Finished job 36.
+3 of 89 steps (3%) done
+
+rule fastq_dump:
+    input: raw_files/sra/H3K27ac_cell_lines/SRR5823948-OVCAR-H3K27ac.sra, raw_files/sra/H3K27ac_cell_lines/SRR5823949-SKOV-H3K27ac.sra, raw_files/sra/H3K27ac_cell_lines/SRR1983924-H3K27ac_1.sra, raw_files/sra/H3K27ac_cell_lines/SRR1983925-H3K27ac_2.sra, raw_files/sra/H3K27ac_cell_lines/SRR1983932-H3K27ac_1.sra, raw_files/sra/H3K27ac_cell_lines/SRR1983933-H3K27ac_2.sra, raw_files/sra/H3K27ac_cell_lines/SRR1983928-input_2.sra, raw_files/sra/H3K27ac_cell_lines/SRR1983929-input_1.sra, raw_files/sra/H3K27ac_cell_lines/SRR1983936-input_2.sra, raw_files/sra/H3K27ac_cell_lines/SRR1983937-input_1.sra
+    output: raw_files/fastq/H3K27ac_cell_lines/SRR1983924-H3K27ac_1_pass.fastq.gz
+    jobid: 40
+    wildcards: sample=SRR1983924-H3K27ac_1
+
+Warning: the following output files of rule fastq_dump were not present when the DAG was created:
+{'raw_files/fastq/H3K27ac_cell_lines/SRR1983924-H3K27ac_1_pass.fastq.gz'}
+Finished job 40.
+4 of 89 steps (4%) done
+
+rule fastq_dump:
+    input: raw_files/sra/H3K27ac_cell_lines/SRR5823948-OVCAR-H3K27ac.sra, raw_files/sra/H3K27ac_cell_lines/SRR5823949-SKOV-H3K27ac.sra, raw_files/sra/H3K27ac_cell_lines/SRR1983924-H3K27ac_1.sra, raw_files/sra/H3K27ac_cell_lines/SRR1983925-H3K27ac_2.sra, raw_files/sra/H3K27ac_cell_lines/SRR1983932-H3K27ac_1.sra, raw_files/sra/H3K27ac_cell_lines/SRR1983933-H3K27ac_2.sra, raw_files/sra/H3K27ac_cell_lines/SRR1983928-input_2.sra, raw_files/sra/H3K27ac_cell_lines/SRR1983929-input_1.sra, raw_files/sra/H3K27ac_cell_lines/SRR1983936-input_2.sra, raw_files/sra/H3K27ac_cell_lines/SRR1983937-input_1.sra
+    output: raw_files/fastq/H3K27ac_cell_lines/SRR1983933-H3K27ac_2_pass.fastq.gz
+    jobid: 60
+    wildcards: sample=SRR1983933-H3K27ac_2
+
+Warning: the following output files of rule fastq_dump were not present when the DAG was created:
+{'raw_files/fastq/H3K27ac_cell_lines/SRR1983933-H3K27ac_2_pass.fastq.gz'}
+Finished job 60.
+5 of 89 steps (6%) done
+
+rule fastq_dump:
+    input: raw_files/sra/H3K27ac_cell_lines/SRR5823948-OVCAR-H3K27ac.sra, raw_files/sra/H3K27ac_cell_lines/SRR5823949-SKOV-H3K27ac.sra, raw_files/sra/H3K27ac_cell_lines/SRR1983924-H3K27ac_1.sra, raw_files/sra/H3K27ac_cell_lines/SRR1983925-H3K27ac_2.sra, raw_files/sra/H3K27ac_cell_lines/SRR1983932-H3K27ac_1.sra, raw_files/sra/H3K27ac_cell_lines/SRR1983933-H3K27ac_2.sra, raw_files/sra/H3K27ac_cell_lines/SRR1983928-input_2.sra, raw_files/sra/H3K27ac_cell_lines/SRR1983929-input_1.sra, raw_files/sra/H3K27ac_cell_lines/SRR1983936-input_2.sra, raw_files/sra/H3K27ac_cell_lines/SRR1983937-input_1.sra
+    output: raw_files/fastq/H3K27ac_cell_lines/SRR1983928-input_2_pass.fastq.gz
+    jobid: 52
+    wildcards: sample=SRR1983928-input_2
+
+Warning: the following output files of rule fastq_dump were not present when the DAG was created:
+{'raw_files/fastq/H3K27ac_cell_lines/SRR1983928-input_2_pass.fastq.gz'}
+Finished job 52.
+6 of 89 steps (7%) done
+
+rule fastq_dump:
+    input: raw_files/sra/H3K27ac_cell_lines/SRR5823948-OVCAR-H3K27ac.sra, raw_files/sra/H3K27ac_cell_lines/SRR5823949-SKOV-H3K27ac.sra, raw_files/sra/H3K27ac_cell_lines/SRR1983924-H3K27ac_1.sra, raw_files/sra/H3K27ac_cell_lines/SRR1983925-H3K27ac_2.sra, raw_files/sra/H3K27ac_cell_lines/SRR1983932-H3K27ac_1.sra, raw_files/sra/H3K27ac_cell_lines/SRR1983933-H3K27ac_2.sra, raw_files/sra/H3K27ac_cell_lines/SRR1983928-input_2.sra, raw_files/sra/H3K27ac_cell_lines/SRR1983929-input_1.sra, raw_files/sra/H3K27ac_cell_lines/SRR1983936-input_2.sra, raw_files/sra/H3K27ac_cell_lines/SRR1983937-input_1.sra
+    output: raw_files/fastq/H3K27ac_cell_lines/SRR1983932-H3K27ac_1_pass.fastq.gz
+    jobid: 38
+    wildcards: sample=SRR1983932-H3K27ac_1
+
+Warning: the following output files of rule fastq_dump were not present when the DAG was created:
+{'raw_files/fastq/H3K27ac_cell_lines/SRR1983932-H3K27ac_1_pass.fastq.gz'}
+Finished job 38.
+7 of 89 steps (8%) done
+
+rule fastq_dump:
+    input: raw_files/sra/H3K27ac_cell_lines/SRR5823948-OVCAR-H3K27ac.sra, raw_files/sra/H3K27ac_cell_lines/SRR5823949-SKOV-H3K27ac.sra, raw_files/sra/H3K27ac_cell_lines/SRR1983924-H3K27ac_1.sra, raw_files/sra/H3K27ac_cell_lines/SRR1983925-H3K27ac_2.sra, raw_files/sra/H3K27ac_cell_lines/SRR1983932-H3K27ac_1.sra, raw_files/sra/H3K27ac_cell_lines/SRR1983933-H3K27ac_2.sra, raw_files/sra/H3K27ac_cell_lines/SRR1983928-input_2.sra, raw_files/sra/H3K27ac_cell_lines/SRR1983929-input_1.sra, raw_files/sra/H3K27ac_cell_lines/SRR1983936-input_2.sra, raw_files/sra/H3K27ac_cell_lines/SRR1983937-input_1.sra
+    output: raw_files/fastq/H3K27ac_cell_lines/SRR1983925-H3K27ac_2_pass.fastq.gz
+    jobid: 54
+    wildcards: sample=SRR1983925-H3K27ac_2
+
+Warning: the following output files of rule fastq_dump were not present when the DAG was created:
+{'raw_files/fastq/H3K27ac_cell_lines/SRR1983925-H3K27ac_2_pass.fastq.gz'}
+Finished job 54.
+8 of 89 steps (9%) done
+
+rule fastqc:
+    input: raw_files/fastq/H3K27ac_cell_lines/SRR1983936-input_2_pass.fastq.gz
+    output: results/fastqc/H3K27ac_cell_lines/SRR1983936-input_2/SRR1983936-input_2_pass_fastqc.html, results/fastqc/H3K27ac_cell_lines/SRR1983936-input_2/SRR1983936-input_2_pass_fastqc.zip
+    jobid: 27
+    wildcards: sample=SRR1983936-input_2
+
+Waiting at most 5 seconds for missing files.
+MissingOutputException in line 37 of /share/ScratchGeneral/jamtor/projects/hgsoc_repeats/histone-ChIP-seq/Snakefile:
+Missing files after 5 seconds:
+results/fastqc/H3K27ac_cell_lines/SRR1983936-input_2/SRR1983936-input_2_pass_fastqc.html
+results/fastqc/H3K27ac_cell_lines/SRR1983936-input_2/SRR1983936-input_2_pass_fastqc.zip
+This might be due to filesystem latency. If that is the case, consider to increase the wait time with --latency-wait.
+Will exit after finishing currently running jobs.
+Shutting down, this might take some time.
+Exiting because a job execution failed. Look above for error message
+Complete log: /share/ScratchGeneral/jamtor/projects/hgsoc_repeats/histone-ChIP-seq/.snakemake/log/2018-04-04T155632.998549.snakemake.log

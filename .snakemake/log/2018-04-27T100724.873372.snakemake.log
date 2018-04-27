@@ -1,0 +1,72 @@
+Building DAG of jobs...
+Using shell: /bin/bash
+Provided cores: 3
+Rules claiming more threads will be scaled down.
+Job counts:
+	count	jobs
+	1	all
+	6	macs_narrow
+	7
+
+rule macs_narrow:
+    input: results/bwa/FT_SAMN03496012/SRR1983927-H3K4me1_2.sorted.rmdup.bam
+    output: results/macs2/FT_SAMN03496012/SRR1983927-H3K4me1_2_peaks.narrowPeak
+    jobid: 19
+    wildcards: sample=SRR1983927-H3K4me1_2
+
+
+rule macs_narrow:
+    input: results/bwa/FT_SAMN03496012/SRR1983935-H3K4me1_2.sorted.rmdup.bam
+    output: results/macs2/FT_SAMN03496012/SRR1983935-H3K4me1_2_peaks.narrowPeak
+    jobid: 3
+    wildcards: sample=SRR1983935-H3K4me1_2
+
+
+rule macs_narrow:
+    input: results/bwa/FT_SAMN03496012/SRR1983934-H3K4me1_1.sorted.rmdup.bam
+    output: results/macs2/FT_SAMN03496012/SRR1983934-H3K4me1_1_peaks.narrowPeak
+    jobid: 2
+    wildcards: sample=SRR1983934-H3K4me1_1
+
+Finished job 19.
+1 of 7 steps (14%) done
+
+rule macs_narrow:
+    input: results/bwa/FT_SAMN03496012/SRR1983926-H3K4me1_1.sorted.rmdup.bam
+    output: results/macs2/FT_SAMN03496012/SRR1983926-H3K4me1_1_peaks.narrowPeak
+    jobid: 24
+    wildcards: sample=SRR1983926-H3K4me1_1
+
+Finished job 2.
+2 of 7 steps (29%) done
+
+rule macs_narrow:
+    input: results/bwa/FT_SAMN03496012/SRR1983932-H3K27ac_1.sorted.rmdup.bam
+    output: results/macs2/FT_SAMN03496012/SRR1983932-H3K27ac_1_peaks.narrowPeak
+    jobid: 1
+    wildcards: sample=SRR1983932-H3K27ac_1
+
+Finished job 3.
+3 of 7 steps (43%) done
+
+rule macs_narrow:
+    input: results/bwa/FT_SAMN03496012/SRR1983933-H3K27ac_2.sorted.rmdup.bam
+    output: results/macs2/FT_SAMN03496012/SRR1983933-H3K27ac_2_peaks.narrowPeak
+    jobid: 7
+    wildcards: sample=SRR1983933-H3K27ac_2
+
+Finished job 7.
+4 of 7 steps (57%) done
+Finished job 1.
+5 of 7 steps (71%) done
+Finished job 24.
+6 of 7 steps (86%) done
+
+localrule all:
+    input: results/macs2/FT_SAMN03496012/SRR1983926-H3K4me1_1_peaks.narrowPeak, results/macs2/FT_SAMN03496012/SRR1983927-H3K4me1_2_peaks.narrowPeak, results/macs2/FT_SAMN03496012/SRR1983932-H3K27ac_1_peaks.narrowPeak, results/macs2/FT_SAMN03496012/SRR1983933-H3K27ac_2_peaks.narrowPeak, results/macs2/FT_SAMN03496012/SRR1983934-H3K4me1_1_peaks.narrowPeak, results/macs2/FT_SAMN03496012/SRR1983935-H3K4me1_2_peaks.narrowPeak, results/spp/FT_SAMN03496012/SRR1983926-H3K4me1_1.spp.result, results/spp/FT_SAMN03496012/SRR1983927-H3K4me1_2.spp.result, results/spp/FT_SAMN03496012/SRR1983928-input_2.spp.result, results/spp/FT_SAMN03496012/SRR1983929-input_1.spp.result, results/spp/FT_SAMN03496012/SRR1983932-H3K27ac_1.spp.result, results/spp/FT_SAMN03496012/SRR1983933-H3K27ac_2.spp.result, results/spp/FT_SAMN03496012/SRR1983934-H3K4me1_1.spp.result, results/spp/FT_SAMN03496012/SRR1983935-H3K4me1_2.spp.result, results/spp/FT_SAMN03496012/SRR1983936-input_2.spp.result, results/spp/FT_SAMN03496012/SRR1983937-input_1.spp.result, results/bwa/FT_SAMN03496012/SRR1983926-H3K4me1_1.sorted.bam.bai, results/bwa/FT_SAMN03496012/SRR1983927-H3K4me1_2.sorted.bam.bai, results/bwa/FT_SAMN03496012/SRR1983928-input_2.sorted.bam.bai, results/bwa/FT_SAMN03496012/SRR1983929-input_1.sorted.bam.bai, results/bwa/FT_SAMN03496012/SRR1983932-H3K27ac_1.sorted.bam.bai, results/bwa/FT_SAMN03496012/SRR1983933-H3K27ac_2.sorted.bam.bai, results/bwa/FT_SAMN03496012/SRR1983934-H3K4me1_1.sorted.bam.bai, results/bwa/FT_SAMN03496012/SRR1983935-H3K4me1_2.sorted.bam.bai, results/bwa/FT_SAMN03496012/SRR1983936-input_2.sorted.bam.bai, results/bwa/FT_SAMN03496012/SRR1983937-input_1.sorted.bam.bai, genomes/repeats/bwa/hg38_ercc_all_repbase.bwa.amb, genomes/repeats/bwa/hg38_ercc_all_repbase.bwa.amb, genomes/repeats/bwa/hg38_ercc_all_repbase.bwa.amb, genomes/repeats/bwa/hg38_ercc_all_repbase.bwa.amb, genomes/repeats/bwa/hg38_ercc_all_repbase.bwa.amb, genomes/repeats/bwa/hg38_ercc_all_repbase.bwa.amb, genomes/repeats/bwa/hg38_ercc_all_repbase.bwa.amb, genomes/repeats/bwa/hg38_ercc_all_repbase.bwa.amb, genomes/repeats/bwa/hg38_ercc_all_repbase.bwa.amb, genomes/repeats/bwa/hg38_ercc_all_repbase.bwa.amb, results/fastqc/FT_SAMN03496012/SRR1983926-H3K4me1_1_pass_fastqc.html, results/fastqc/FT_SAMN03496012/SRR1983927-H3K4me1_2_pass_fastqc.html, results/fastqc/FT_SAMN03496012/SRR1983928-input_2_pass_fastqc.html, results/fastqc/FT_SAMN03496012/SRR1983929-input_1_pass_fastqc.html, results/fastqc/FT_SAMN03496012/SRR1983932-H3K27ac_1_pass_fastqc.html, results/fastqc/FT_SAMN03496012/SRR1983933-H3K27ac_2_pass_fastqc.html, results/fastqc/FT_SAMN03496012/SRR1983934-H3K4me1_1_pass_fastqc.html, results/fastqc/FT_SAMN03496012/SRR1983935-H3K4me1_2_pass_fastqc.html, results/fastqc/FT_SAMN03496012/SRR1983936-input_2_pass_fastqc.html, results/fastqc/FT_SAMN03496012/SRR1983937-input_1_pass_fastqc.html
+    jobid: 0
+
+Finished job 0.
+7 of 7 steps (100%) done
+Shutting down, this might take some time.
+Complete log: /share/ScratchGeneral/jamtor/projects/hgsoc_repeats/histone-ChIP-seq/.snakemake/log/2018-04-27T100724.873372.snakemake.log

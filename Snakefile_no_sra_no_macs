@@ -3,7 +3,7 @@
 #briR
 #module load 
 
-#qsub -N ChIP_FT_SAMN03496012 -b y -wd /share/ScratchGeneral/jamtor/projects/hgsoc_repeats/histone-ChIP-seq/ -j y -R y -pe smp 9 -V \
+#qsub -N H3K27ac_cell_lines -b y -wd /share/ScratchGeneral/jamtor/projects/hgsoc_repeats/histone-ChIP-seq/ -j y -R y -pe smp 9 -V \
 #"snakemake -s /share/ScratchGeneral/jamtor/projects/hgsoc_repeats/histone-ChIP-seq/Snakefile \
 #--cores 3"
 
@@ -11,17 +11,17 @@
 import os
 import re
 
-exp_name = 'FT_SAMN03496012'
+exp_name = 'H3K27ac_cell_lines'
 
 home_dir = '/share/ScratchGeneral/jamtor/'
 project_dir = home_dir + '/projects/hgsoc_repeats/histone-ChIP-seq/'
-in_dir = project_dir + '/raw_files/sra/' + exp_name
-SAMPLES = [ re.sub('.sra', '', x) for x in list(os.walk(in_dir))[0][2] ]
+in_dir = project_dir + '/raw_files/fastq/' + exp_name
+SAMPLES = [ re.sub('_pass.fastq.gz', '', x) for x in list(os.walk(in_dir))[0][2] ]
 
-input_sample = 'SRR1983929-input_1'
+#input_sample = 'SRR1983929-input_1'
 
 # define/create directories:
-sra_dir = 'raw_files/sra/' + exp_name + '/'
+#sra_dir = 'raw_files/sra/' + exp_name + '/'
 
 fastq_dir = 'raw_files/fastq/' + exp_name + '/'
 if not os.path.exists(project_dir + 'raw_files/fastq/' + exp_name + '/'):
@@ -44,19 +44,19 @@ if not os.path.exists(project_dir + 'results/macs2/' + exp_name + '/'):
 	os.makedirs(project_dir + 'results/macs2/' + exp_name + '/')
 
 # convert all SAMPLE sras to fastqs and move to correct directory:
-for s in SAMPLES:
-	if os.path.isfile(project_dir + 'raw_files/fastq/' + exp_name + 
-		'/' + s + '_pass.fastq.gz'):
-		print(project_dir + 'raw_files/fastq/' + exp_name + 
-		'/' + s + '_pass.fastq.gz already exists')
-	else:
-		print('Creating ' + project_dir + 'raw_files/fastq/' + 
-			exp_name + '/' + s + '.fastq.gz')
-		os.system('fastq-dump --outdir ' + project_dir + 
-			'raw_files/fastq/' + exp_name + '/' + ' --gzip ' + 
-			'--skip-technical --readids --read-filter pass ' + 
-			'--dumpbase --split-3 --clip ' + sra_dir + '/' + s + 
-			'.sra')
+#for s in SAMPLES:
+#	if os.path.isfile(project_dir + 'raw_files/fastq/' + exp_name + 
+#		'/' + s + '_pass.fastq.gz'):
+#		print(project_dir + 'raw_files/fastq/' + exp_name + 
+#		'/' + s + '_pass.fastq.gz already exists')
+#	else:
+#		print('Creating ' + project_dir + 'raw_files/fastq/' + 
+#			exp_name + '/' + s + '.fastq.gz')
+#		os.system('fastq-dump --outdir ' + project_dir + 
+#			'raw_files/fastq/' + exp_name + '/' + ' --gzip ' + 
+#			'--skip-technical --readids --read-filter pass ' + 
+#			'--dumpbase --split-3 --clip ' + sra_dir + '/' + s + 
+#			'.sra')
 
 # add only narrow peak samples to list for macs_narrow job:
 for i in range(0,len(SAMPLES)):
@@ -82,8 +82,8 @@ if 'nar' in globals() and 'brd' in globals():
 	print('Both narrow and broak peaks samples exist')
 	rule all:
 		input:
-			expand(macs_dir + '{sample}_peaks.narrowPeak', sample=nar),
-			expand(macs_dir + '{sample}_peaks.broadPeak', sample=brd),
+			#expand(macs_dir + '{sample}_peaks.narrowPeak', sample=nar),
+			#expand(macs_dir + '{sample}_peaks.broadPeak', sample=brd),
 			expand(spp_dir + '{sample}.spp.result', sample=SAMPLES),
 			expand(bwa_dir + '{sample}.sorted.bam.bai', sample=SAMPLES),
 			expand('genomes/repeats/bwa/hg38_ercc_all_repbase.bwa.amb', sample=SAMPLES),
@@ -93,7 +93,7 @@ elif 'nar' in globals() and 'brd' not in globals():
 	print('Only narrow peak samples exist')
 	rule all:
 		input:
-			expand(macs_dir + '{sample}_peaks.narrowPeak', sample=nar),
+			#expand(macs_dir + '{sample}_peaks.narrowPeak', sample=nar),
 			expand(spp_dir + '{sample}.spp.result', sample=SAMPLES),
 			expand(bwa_dir + '{sample}.sorted.bam.bai', sample=SAMPLES),
 			expand('genomes/repeats/bwa/hg38_ercc_all_repbase.bwa.amb', sample=SAMPLES),
@@ -103,7 +103,7 @@ elif 'brd' in globals() and 'nar' not in globals():
 	print('Only broak peak samples exist')
 	rule all:
 		input:
-			expand(macs_dir + '{sample}_peaks.broadPeak', sample=brd),
+			#expand(macs_dir + '{sample}_peaks.broadPeak', sample=brd),
 			expand(spp_dir + '{sample}.spp.result', sample=SAMPLES),
 			expand(bwa_dir + '{sample}.sorted.bam.bai', sample=SAMPLES),
 			expand('genomes/repeats/bwa/hg38_ercc_all_repbase.bwa.amb', sample=SAMPLES),
@@ -191,30 +191,31 @@ rule spp:
 		-c={input} -i={input} -savp -p=2 -odir=' + spp_dir +
 		' -out={output}'
 
-rule macs_narrow:
-	input:
-		bwa_dir + '{sample}.sorted.rmdup.bam'
-	output:
-		macs_dir + '{sample}_peaks.narrowPeak'
-	shell:
-		'source activate p2.7env; ' +
-		'/home/jamtor/local/lib/MACS/bin/macs2 callpeak -t ' +
-		'{input} -c ' +
-		bwa_dir + input_sample + '.sorted.rmdup.bam' +
-		' --name "{wildcards.sample}" ' +
-		'--outdir ' + macs_dir
-
-rule macs_broad:
-	input:
-		bwa_dir + '{sample}.sorted.rmdup.bam'
-	output:
-		macs_dir + '{sample}_peaks.broadPeak'
-	shell:
-		'source activate p2.7env; ' +
-		'/home/jamtor/local/lib/MACS/bin/macs2 callpeak -t ' +
-		'{input} -c ' +
-		bwa_dir + input_sample + '.sorted.rmdup.bam' +
-		' --broad' +
-		' --name "{wildcards.sample}" ' +
-		'--outdir ' + macs_dir
-
+#rule macs_narrow:
+#	input:
+#		bwa_dir + '{sample}.sorted.rmdup.bam'
+#	output:
+#		macs_dir + '{sample}_peaks.narrowPeak'
+#	shell:
+#		'source activate p2.7env; ' +
+#		'/home/jamtor/local/lib/MACS/bin/macs2 callpeak -t ' +
+#		'{input} -c ' +
+#		bwa_dir + input_sample + '.sorted.rmdup.bam' +
+#		' --name "{wildcards.sample}" ' +
+#		'--outdir ' + macs_dir
+#
+#rule macs_broad:
+#	input:
+#		bwa_dir + '{sample}.sorted.rmdup.bam'
+#	output:
+#		macs_dir + '{sample}_peaks.broadPeak'
+#	shell:
+#		'source activate p2.7env; ' +
+#		'/home/jamtor/local/lib/MACS/bin/macs2 callpeak -t ' +
+#		'{input} -c ' +
+#		bwa_dir + input_sample + '.sorted.rmdup.bam' +
+#		' --broad' +
+#		' --name "{wildcards.sample}" ' +
+#		'--outdir ' + macs_dir
+#
+#

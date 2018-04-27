@@ -1,0 +1,20 @@
+Building DAG of jobs...
+Using shell: /bin/bash
+Provided cores: 1
+Rules claiming more threads will be scaled down.
+Job counts:
+	count	jobs
+	1	fastq_dump
+	1
+
+rule fastq_dump:
+    input: raw_files/sra/SRR600983.sra
+    output: raw_files/fastq/SRR600983.fastq
+    jobid: 0
+    wildcards: sample=SRR600983
+
+fastq-dump --outdir raw_files/fastq/SRR600983.fastq --gzip --skip-technical  --readids --read-filter pass --dumpbase --split-3 --clip raw_files/sra/SRR600983.sra
+Finished job 0.
+1 of 1 steps (100%) done
+Shutting down, this might take some time.
+Complete log: /share/ScratchGeneral/jamtor/projects/hgsoc_repeats/histone-ChIP-seq/.snakemake/log/2018-04-03T115418.578652.snakemake.log

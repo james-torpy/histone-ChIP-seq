@@ -1,0 +1,89 @@
+Building DAG of jobs...
+Using shell: /bin/bash
+Provided cores: 1
+Rules claiming more threads will be scaled down.
+Job counts:
+	count	jobs
+	1	all
+	1	bwa_align
+	1	bwa_samse
+	1	fastqc
+	1	remove_dupes
+	1	samtools_filter
+	1	samtools_index
+	1	spp
+	8
+
+rule fastqc:
+    input: raw_files/fastq/smtest/SRR600559-H3K27me3_pass.fastq.gz
+    output: results/fastqc/smtest/SRR600559-H3K27me3_pass_fastqc.html, results/fastqc/smtest/SRR600559-H3K27me3_pass_fastqc.zip
+    jobid: 1
+    wildcards: sample=SRR600559-H3K27me3
+
+Finished job 1.
+1 of 8 steps (12%) done
+
+rule bwa_align:
+    input: raw_files/fastq/smtest/SRR600559-H3K27me3_pass.fastq.gz, results/fastqc/smtest/SRR600559-H3K27me3_pass_fastqc.html
+    output: results/bwa/smtest/SRR600559-H3K27me3.sai
+    jobid: 7
+    wildcards: sample=SRR600559-H3K27me3
+
+Finished job 7.
+2 of 8 steps (25%) done
+
+rule bwa_samse:
+    input: results/bwa/smtest/SRR600559-H3K27me3.sai, raw_files/fastq/smtest/SRR600559-H3K27me3_pass.fastq.gz
+    output: results/bwa/smtest/SRR600559-H3K27me3.sam
+    jobid: 6
+    wildcards: sample=SRR600559-H3K27me3
+
+Finished job 6.
+3 of 8 steps (38%) done
+
+rule samtools_filter:
+    input: results/bwa/smtest/SRR600559-H3K27me3.sam
+    output: results/bwa/smtest/SRR600559-H3K27me3.sorted.bam
+    jobid: 4
+    wildcards: sample=SRR600559-H3K27me3
+
+Finished job 4.
+4 of 8 steps (50%) done
+
+rule samtools_index:
+    input: results/bwa/smtest/SRR600559-H3K27me3.sorted.bam
+    output: results/bwa/smtest/SRR600559-H3K27me3.sorted.bam.bai
+    jobid: 2
+    wildcards: sample=SRR600559-H3K27me3
+
+Finished job 2.
+5 of 8 steps (62%) done
+
+rule remove_dupes:
+    input: results/bwa/smtest/SRR600559-H3K27me3.sorted.bam, results/bwa/smtest/SRR600559-H3K27me3.sorted.bam.bai
+    output: results/bwa/smtest/SRR600559-H3K27me3.sorted.rmdup.bam, results/bwa/smtest/SRR600559-H3K27me3.sorted.rmdupmet.bam
+    jobid: 5
+    wildcards: sample=SRR600559-H3K27me3
+
+Finished job 5.
+6 of 8 steps (75%) done
+
+rule spp:
+    input: results/bwa/smtest/SRR600559-H3K27me3.sorted.rmdup.bam
+    output: results/spp/smtest/SRR600559-H3K27me3.spp.result
+    jobid: 3
+    wildcards: sample=SRR600559-H3K27me3
+
+Error in rule spp:
+    jobid: 3
+    output: results/spp/smtest/SRR600559-H3K27me3.spp.result
+
+RuleException:
+CalledProcessError in line 139 of /share/ScratchGeneral/jamtor/projects/hgsoc_repeats/histone-ChIP-seq/Snakefile:
+Command ' set -euo pipefail;  Rscript /home/jamtor/local/lib/phantompeakqualtools/run_spp.R 		-c=results/bwa/smtest/SRR600559-H3K27me3.sorted.rmdup.bam -i=results/bwa/smtest/SRR600559-H3K27me3.sorted.rmdup.bam -savp -p=2 -odir=results/spp -out=results/spp/smtest/SRR600559-H3K27me3.spp.result ' returned non-zero exit status 127.
+  File "/share/ScratchGeneral/jamtor/projects/hgsoc_repeats/histone-ChIP-seq/Snakefile", line 139, in __rule_spp
+  File "/home/jamtor/local/bin/miniconda2/envs/snakemake/lib/python3.6/concurrent/futures/thread.py", line 56, in run
+Will exit after finishing currently running jobs.
+Shutting down, this might take some time.
+Exiting because a job execution failed. Look above for error message
+Complete log: /share/ScratchGeneral/jamtor/projects/hgsoc_repeats/histone-ChIP-seq/.snakemake/log/2018-04-16T113355.469434.snakemake.log

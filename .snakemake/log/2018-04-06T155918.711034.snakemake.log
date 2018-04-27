@@ -1,0 +1,5 @@
+Building DAG of jobs...
+MissingInputException in line 83 of /share/ScratchGeneral/jamtor/projects/hgsoc_repeats/histone-ChIP-seq/Snakefile:
+Missing input files for rule bwa_align:
+raw_files/fastq/HGSOC_SAMN01761041/SRR600559-H3K27me3_pass.fastq.gz
+raw_files/fastq/HGSOC_SAMN01761041/SRR600559-H3K27me3_pass_fastqc.html

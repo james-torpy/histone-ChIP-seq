@@ -1,0 +1,66 @@
+Building DAG of jobs...
+Using shell: /bin/bash
+Provided cores: 64
+Rules claiming more threads will be scaled down.
+Job counts:
+	count	jobs
+	1	all
+	3	bwa_align
+	3	bwa_samse
+	3	fastq_dump
+	3	fastqc
+	3	remove_dupes
+	3	samtools_filter
+	3	samtools_index
+	3	spp
+	25
+
+rule fastq_dump:
+    input: raw_files/sra/HGSOC_SAMN01761041/SRR600559-H3K27me3.sra
+    output: raw_files/fastq/HGSOC_SAMN01761041/SRR600559-H3K27me3_pass.fastq.gz
+    jobid: 13
+    wildcards: sample=SRR600559-H3K27me3
+
+
+rule fastq_dump:
+    input: raw_files/sra/HGSOC_SAMN01761041/SRR600983-input.sra
+    output: raw_files/fastq/HGSOC_SAMN01761041/SRR600983-input_pass.fastq.gz
+    jobid: 11
+    wildcards: sample=SRR600983-input
+
+
+rule fastq_dump:
+    input: raw_files/sra/HGSOC_SAMN01761041/SRR600956-H3K4me3.sra
+    output: raw_files/fastq/HGSOC_SAMN01761041/SRR600956-H3K4me3_pass.fastq.gz
+    jobid: 10
+    wildcards: sample=SRR600956-H3K4me3
+
+Terminating processes on user request.
+Error in rule fastq_dump:
+Error in rule fastq_dump:
+    jobid: 11
+Error in rule fastq_dump:
+    jobid: 13
+    output: raw_files/fastq/HGSOC_SAMN01761041/SRR600983-input_pass.fastq.gz
+    jobid: 10
+    output: raw_files/fastq/HGSOC_SAMN01761041/SRR600559-H3K27me3_pass.fastq.gz
+
+    output: raw_files/fastq/HGSOC_SAMN01761041/SRR600956-H3K4me3_pass.fastq.gz
+
+
+RuleException:
+CalledProcessError in line 60 of /share/ScratchGeneral/jamtor/projects/hgsoc_repeats/histone-ChIP-seq/Snakefile:
+Command ' set -euo pipefail;  fastq-dump --outdir fastq_dir--gzip --skip-technical  --readids --read-filter pass --dumpbase --split-3 --clip raw_files/sra/HGSOC_SAMN01761041/SRR600983-input.sra ' returned non-zero exit status 3.
+  File "/share/ScratchGeneral/jamtor/projects/hgsoc_repeats/histone-ChIP-seq/Snakefile", line 60, in __rule_fastq_dump
+  File "/home/jamtor/local/bin/miniconda2/envs/snakemake/lib/python3.6/concurrent/futures/thread.py", line 56, in run
+RuleException:
+CalledProcessError in line 60 of /share/ScratchGeneral/jamtor/projects/hgsoc_repeats/histone-ChIP-seq/Snakefile:
+Command ' set -euo pipefail;  fastq-dump --outdir fastq_dir--gzip --skip-technical  --readids --read-filter pass --dumpbase --split-3 --clip raw_files/sra/HGSOC_SAMN01761041/SRR600559-H3K27me3.sra ' returned non-zero exit status 3.
+  File "/share/ScratchGeneral/jamtor/projects/hgsoc_repeats/histone-ChIP-seq/Snakefile", line 60, in __rule_fastq_dump
+  File "/home/jamtor/local/bin/miniconda2/envs/snakemake/lib/python3.6/concurrent/futures/thread.py", line 56, in run
+RuleException:
+CalledProcessError in line 60 of /share/ScratchGeneral/jamtor/projects/hgsoc_repeats/histone-ChIP-seq/Snakefile:
+Command ' set -euo pipefail;  fastq-dump --outdir fastq_dir--gzip --skip-technical  --readids --read-filter pass --dumpbase --split-3 --clip raw_files/sra/HGSOC_SAMN01761041/SRR600956-H3K4me3.sra ' returned non-zero exit status 3.
+  File "/share/ScratchGeneral/jamtor/projects/hgsoc_repeats/histone-ChIP-seq/Snakefile", line 60, in __rule_fastq_dump
+  File "/home/jamtor/local/bin/miniconda2/envs/snakemake/lib/python3.6/concurrent/futures/thread.py", line 56, in run
+Cancelling snakemake on user request.

@@ -1,0 +1,104 @@
+Building DAG of jobs...
+Using shell: /bin/bash
+Provided cores: 3
+Rules claiming more threads will be scaled down.
+Job counts:
+	count	jobs
+	1	all
+	10	bwa_align
+	10	bwa_samse
+	9	fastqc
+	10	remove_dupes
+	10	samtools_filter
+	10	samtools_index
+	10	spp
+	70
+
+rule fastqc:
+    input: raw_files/fastq/H3K27ac_cell_lines/SRR1983937-input_1_pass.fastq.gz
+    output: results/fastqc/H3K27ac_cell_lines/SRR1983937-input_1_pass_fastqc.html, results/fastqc/H3K27ac_cell_lines/SRR1983937-input_1_pass_fastqc.zip
+    jobid: 13
+    wildcards: sample=SRR1983937-input_1
+
+
+rule fastqc:
+    input: raw_files/fastq/H3K27ac_cell_lines/SRR1983929-input_1_pass.fastq.gz
+    output: results/fastqc/H3K27ac_cell_lines/SRR1983929-input_1_pass_fastqc.html, results/fastqc/H3K27ac_cell_lines/SRR1983929-input_1_pass_fastqc.zip
+    jobid: 19
+    wildcards: sample=SRR1983929-input_1
+
+
+rule fastqc:
+    input: raw_files/fastq/H3K27ac_cell_lines/SRR1983928-input_2_pass.fastq.gz
+    output: results/fastqc/H3K27ac_cell_lines/SRR1983928-input_2_pass_fastqc.html, results/fastqc/H3K27ac_cell_lines/SRR1983928-input_2_pass_fastqc.zip
+    jobid: 20
+    wildcards: sample=SRR1983928-input_2
+
+Finished job 13.
+1 of 70 steps (1%) done
+
+rule fastqc:
+    input: raw_files/fastq/H3K27ac_cell_lines/SRR5823948-OVCAR-H3K27ac_pass.fastq.gz
+    output: results/fastqc/H3K27ac_cell_lines/SRR5823948-OVCAR-H3K27ac_pass_fastqc.html, results/fastqc/H3K27ac_cell_lines/SRR5823948-OVCAR-H3K27ac_pass_fastqc.zip
+    jobid: 2
+    wildcards: sample=SRR5823948-OVCAR-H3K27ac
+
+Finished job 20.
+2 of 70 steps (3%) done
+
+rule fastqc:
+    input: raw_files/fastq/H3K27ac_cell_lines/SRR5823949-SKOV-H3K27ac_pass.fastq.gz
+    output: results/fastqc/H3K27ac_cell_lines/SRR5823949-SKOV-H3K27ac_pass_fastqc.html, results/fastqc/H3K27ac_cell_lines/SRR5823949-SKOV-H3K27ac_pass_fastqc.zip
+    jobid: 3
+    wildcards: sample=SRR5823949-SKOV-H3K27ac
+
+Finished job 19.
+3 of 70 steps (4%) done
+
+rule fastqc:
+    input: raw_files/fastq/H3K27ac_cell_lines/SRR1983932-H3K27ac_1_pass.fastq.gz
+    output: results/fastqc/H3K27ac_cell_lines/SRR1983932-H3K27ac_1_pass_fastqc.html, results/fastqc/H3K27ac_cell_lines/SRR1983932-H3K27ac_1_pass_fastqc.zip
+    jobid: 10
+    wildcards: sample=SRR1983932-H3K27ac_1
+
+Finished job 10.
+4 of 70 steps (6%) done
+
+rule fastqc:
+    input: raw_files/fastq/H3K27ac_cell_lines/SRR1983933-H3K27ac_2_pass.fastq.gz
+    output: results/fastqc/H3K27ac_cell_lines/SRR1983933-H3K27ac_2_pass_fastqc.html, results/fastqc/H3K27ac_cell_lines/SRR1983933-H3K27ac_2_pass_fastqc.zip
+    jobid: 30
+    wildcards: sample=SRR1983933-H3K27ac_2
+
+Finished job 30.
+5 of 70 steps (7%) done
+
+rule fastqc:
+    input: raw_files/fastq/H3K27ac_cell_lines/SRR1983924-H3K27ac_1_pass.fastq.gz
+    output: results/fastqc/H3K27ac_cell_lines/SRR1983924-H3K27ac_1_pass_fastqc.html, results/fastqc/H3K27ac_cell_lines/SRR1983924-H3K27ac_1_pass_fastqc.zip
+    jobid: 14
+    wildcards: sample=SRR1983924-H3K27ac_1
+
+Finished job 14.
+6 of 70 steps (9%) done
+
+rule fastqc:
+    input: raw_files/fastq/H3K27ac_cell_lines/SRR1983925-H3K27ac_2_pass.fastq.gz
+    output: results/fastqc/H3K27ac_cell_lines/SRR1983925-H3K27ac_2_pass_fastqc.html, results/fastqc/H3K27ac_cell_lines/SRR1983925-H3K27ac_2_pass_fastqc.zip
+    jobid: 28
+    wildcards: sample=SRR1983925-H3K27ac_2
+
+Finished job 3.
+7 of 70 steps (10%) done
+Finished job 28.
+8 of 70 steps (11%) done
+Finished job 2.
+9 of 70 steps (13%) done
+
+rule bwa_align:
+    input: raw_files/fastq/H3K27ac_cell_lines/SRR1983936-input_2_pass.fastq.gz, results/fastqc/H3K27ac_cell_lines/SRR1983936-input_2_pass_fastqc.html
+    output: results/bwa/H3K27ac_cell_lines/SRR1983936-input_2.sai
+    jobid: 68
+    wildcards: sample=SRR1983936-input_2
+    threads: 3
+

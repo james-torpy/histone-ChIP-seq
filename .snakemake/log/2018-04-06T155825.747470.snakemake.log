@@ -1,0 +1,3 @@
+NameError in line 48 of /share/ScratchGeneral/jamtor/projects/hgsoc_repeats/histone-ChIP-seq/Snakefile:
+name 'bam_dir' is not defined
+  File "/share/ScratchGeneral/jamtor/projects/hgsoc_repeats/histone-ChIP-seq/Snakefile", line 48, in <module>

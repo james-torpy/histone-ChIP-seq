@@ -1,0 +1,32 @@
+Building DAG of jobs...
+Using shell: /bin/bash
+Provided cores: 1
+Rules claiming more threads will be scaled down.
+Job counts:
+	count	jobs
+	1	all
+	10	bwa_align
+	10	bwa_samse
+	10	fastq_dump
+	10	fastqc
+	10	remove_dupes
+	10	samtools_filter
+	10	samtools_index
+	10	spp
+	81
+
+rule fastq_dump:
+    input: raw_files/sra/H3K27ac_cell_lines/SRR5823948-OVCAR-H3K27ac.sra
+    output: raw_files/fastq/H3K27ac_cell_lines/SRR5823948-OVCAR-H3K27ac/SRR5823948-OVCAR-H3K27ac_pass.fastq.gz
+    jobid: 51
+    wildcards: sample=SRR5823948-OVCAR-H3K27ac
+
+Waiting at most 5 seconds for missing files.
+MissingOutputException in line 25 of /share/ScratchGeneral/jamtor/projects/hgsoc_repeats/histone-ChIP-seq/Snakefile:
+Missing files after 5 seconds:
+raw_files/fastq/H3K27ac_cell_lines/SRR5823948-OVCAR-H3K27ac/SRR5823948-OVCAR-H3K27ac_pass.fastq.gz
+This might be due to filesystem latency. If that is the case, consider to increase the wait time with --latency-wait.
+Will exit after finishing currently running jobs.
+Shutting down, this might take some time.
+Exiting because a job execution failed. Look above for error message
+Complete log: /share/ScratchGeneral/jamtor/projects/hgsoc_repeats/histone-ChIP-seq/.snakemake/log/2018-04-04T135154.781163.snakemake.log
