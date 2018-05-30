@@ -31,8 +31,8 @@ pos_ctl <- read.table(paste0(refDir, "/HGSOC_H3K27me3_H3K4me3_pos_ctls_curry2017
 neg_ctl <- c("GAPDH", "CD47", "CCNE1")
 
 # define directories:
-#homeDir <- "/Users/jamestorpy/clusterHome/"
-homeDir <- "/share/ScratchGeneral/jamtor/"
+homeDir <- "/Users/jamestorpy/clusterHome/"
+#homeDir <- "/share/ScratchGeneral/jamtor/"
 projectDir <- paste0(homeDir, "/projects/", project, "/", expName, "/", sampleName, "/")
 resultsDir <- paste0(projectDir, "/results")
 refDir <- paste0(projectDir, "/refs/")
@@ -267,8 +267,8 @@ saveRDS(ctl_odds_peaks2, file = paste0(RobjectDir, "/repeats_",
 ########################################################################
 
 # create function to filter rp_odds by selected p-value and plot them 
-# barplot:
-plot_odds <- function(odds, pval = 0.05, con = F, diff_ex = F) {
+# with boxplot:
+plot_odds <- function(odds, pval = 0.1, con = F, diff_ex = F) {
   # filter by p-value:
   odds_temp <- lapply(odds, function(x) {
     if ( x[[3]] < pval & x[[3]] != 0 ) {

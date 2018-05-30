@@ -30,8 +30,8 @@ descrip <- paste0(sampleName, "_enrichment")
 p_thresh <- 0.1
 
 # define directories:
-#homeDir <- "/Users/jamestorpy/clusterHome/"
-homeDir <- "/share/ScratchGeneral/jamtor/"
+homeDir <- "/Users/jamestorpy/clusterHome/"
+#homeDir <- "/share/ScratchGeneral/jamtor/"
 projectDir <- paste0(homeDir, "/projects/", project, "/", expName, "/", sampleName, "/")
 resultsDir <- paste0(projectDir, "/results")
 refDir <- paste0(projectDir, "/refs/")
@@ -279,7 +279,11 @@ if ( !file.exists(paste0(RobjectDir, "/repeats_peak_overlap_odds.rds")) ) {
   
   # bind odds results for repeats and controls into one data frame per 
   # sample/annotation combination:
-  rp_test <- lapply(rp_peak_odds, function(x) {
+  rp_peak_odds <- lapply(rp_peak_odds, function(x) {
+    return(do.call("rbind", x))
+  })
+  
+  ctl_peak_odds <- lapply(ctl_peak_odds, function(x) {
     return(do.call("rbind", x))
   })
   
@@ -310,23 +314,37 @@ min.mean.se.max <- function(x) {
 }
 
 
+# plot DE odds of repeats with DE RNA expression:
+RNA_DE <- read.table(file = paste0(DE_dir, "/sig_rep_list.txt"))[,1]
+up_reps <- RNA_DE[RNA_DE %in% c("BSR_beta", "GSATX", "HSATII", "ACRO1")]
+down_reps <- RNA_DE[!(RNA_DE %in%c("BSR_beta", "GSATX", "HSATII", "ACRO1"))]
+
+RNA_DE_odds <- lapply(rp_peak_odds, function(x) {
+  return(x[rownames(x) %in% RNA_DE,])
+})
+
 # create function to filter odds data frames by selected p-value and 
 # plot them with barplot:
 plot_odds <- function(odds, pval = p_thresh, sig_only = T) {
   
   # filter by odds:
   odds_DE <- odds[odds$odds != 0,]
+  
+  odds_DE$type <- "repeat"
+  
+  
   # filter by p-value and std error of equal or below 0.2:
   odds_sig <- odds_DE[(odds_DE$pval < p_thresh & odds_DE$pval != 0 & 
                          odds_DE$std_error <= 0.2),]
     
   # fetch bind H3K27me3 and H3K4me3 control data frames and annotate
   # before binding with odds_sig:
-  odds_sig$type <- "repeat"
+  odds_sig$type <- "downregulated_repeat"
+  odds_sig$type[rownames(odds_sig) %in% c("BSR_beta", "GSATX", "HSATII", "ACRO1")] <- "upregulated_repeat"
   
-  H3K27me3_temp <- cont[[k]][rownames(cont[[k]]) %in% H3K27me3_ctl,]
+  H3K27me3_temp <- ctl_peak_odds[[k]][rownames(ctl_peak_odds[[k]]) %in% H3K27me3_ctl,]
   H3K27me3_temp$type <- "H3K27me3_control"
-  H3K4me3_temp <- cont[[k]][rownames(cont[[k]]) %in% H3K4me3_ctl,]
+  H3K4me3_temp <- ctl_peak_odds[[k]][rownames(ctl_peak_odds[[k]]) %in% H3K4me3_ctl,]
   H3K4me3_temp$type <- "H3K4me3_control"
   ctl_df <- rbind(H3K27me3_temp, H3K4me3_temp)
   
@@ -355,13 +373,16 @@ plot_odds <- function(odds, pval = p_thresh, sig_only = T) {
     
     odds_DE$type <- "repeat"
     
-    odds_DE$type[odds_DE$pval <= pval] <- 
-      paste0(odds_DE$type[odds_DE$pval <= pval], "_significant")
-    odds_DE$type[odds_DE$pval > pval] <- 
-      paste0(odds_DE$type[odds_DE$pval > pval], "_non-significant")
+    odds_DE$type <- "downregulated_repeat"
+    odds_DE$type[rownames(odds_DE) %in% c("BSR_beta", "GSATX", "HSATII", "ACRO1")] <- 
+      "upregulated_repeat"
+    
+    odds_DE$odds[odds_DE$pval > pval] <- 1
     
     all_df <- rbind(ctl_DE, odds_DE)
     all_df$ID <- rownames(all_df)
+    all_df$type <- factor(all_df$type, levels = c("H3K4me3_control", 
+      "H3K27me3_control", "upregulated_repeat", "downregulated_repeat"))
     
     p <- ggplot(all_df, aes(y=odds, x=factor(type), fill = type))
     p <- p + stat_summary(fun.data = min.mean.se.max, geom = "boxplot")
@@ -380,34 +401,12 @@ plot_odds <- function(odds, pval = p_thresh, sig_only = T) {
   return(list(p, result))
 }
   
-# plot DE odds with p < 0.05:
-k=1
-odds_p0.05 <- lapply(rp_peak_odds, plot_odds, pval = 0.05)
-
 # plot DE odds with p < 0.1:
 k=1
-odds_p0.1 <- lapply(rp_peak_odds, plot_odds, pval = 0.1)
-
-# plot DE odds and controls with p < 0.05:
-k=1
-odds_ctls_p0.05 <- lapply(rp_peak_odds, plot_odds, pval = 0.05, cont = ctl_peak_odds)
-
-# plot DE odds and controls with p < 0.1:
-k=1
-odds_ctls_p0.1 <- lapply(rp_peak_odds, plot_odds, pval = 0.05, cont = ctl_peak_odds)
-
-# plot DE odds of repeats with DE RNA expression:
-RNA_DE <- read.table(file = paste0(DE_dir, "/sig_rep_list.txt"))[,1]
-
-RNA_DE_odds <- lapply(rp_peak_odds, function(x) {
-  return(x[rownames(x) %in% RNA_DE,])
-})
+odds_p0.1 <- lapply(rp_peak_odds, plot_odds, pval = 0.1, sig_only = F)
 
 k=1
-RNA_DE_odds_p0.1 <- lapply(RNA_DE_odds, plot_odds, pval = 0.1)
-
-k=1
-RNA_DE_odds_p0.1_conts <- lapply(RNA_DE_odds, plot_odds, pval = 0.1, cont = ctl_peak_odds)
+RNA_DE_odds_p0.1 <- lapply(RNA_DE_odds, plot_odds, pval = 0.1, sig_only = F)
 
 # save selected plots and tables:
 # pdf(paste0(plotDir, "/HGSOC_H3K27me3_SRR600559_repeat_peak_log_odds_p0.05.pdf"))
@@ -421,9 +420,14 @@ RNA_DE_odds_p0.1_conts <- lapply(RNA_DE_odds, plot_odds, pval = 0.1, cont = ctl_
 # 
 # 
 # 
-# pdf(paste0(plotDir, "/HGSOC_H3K27me3_SRR600559_repeat_peak_log_odds_p0.05.pdf"))
-# odds_p0.05$HGSOC_H3K27me3_SRR600559[[1]]
-# dev.off()
+ pdf(paste0(plotDir, "/HGSOC_H3K27me3_SRR600559_DE_repeat_peak_log_odds_p0.1.pdf"))
+ RNA_DE_odds_p0.1$HGSOC_H3K27me3_SRR600559[[1]]
+ dev.off()
+ 
+ pdf(paste0(plotDir, "/HGSOC_H3K4me3_SRR600956_DE_repeat_peak_log_odds_p0.1.pdf"))
+ RNA_DE_odds_p0.1$HGSOC_H3K4me3_SRR600956[[1]]
+ dev.off()
+ 
 # 
 # pdf(paste0(plotDir, "/HGSOC_H3K4me3_SRR600956_repeat_peak_log_odds_p0.05.pdf"))
 # print(odds_p0.05$HGSOC_H3K4me3_SRR600956[[1]])

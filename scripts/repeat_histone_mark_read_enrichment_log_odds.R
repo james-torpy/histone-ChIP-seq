@@ -29,9 +29,14 @@ descrip <- paste0(sampleName, "_enrichment")
 
 p_thresh <- 0.1
 
+# specify regions to include for marks (body, upstream, up_and_downstream)
+incl_marks <- "upstream"
+# specify how many bp up/downstream to expand repeats annotation by:
+exp_no <- 500
+
 # define directories:
-#homeDir <- "/Users/jamestorpy/clusterHome/"
-homeDir <- "/share/ScratchGeneral/jamtor/"
+homeDir <- "/Users/jamestorpy/clusterHome/"
+#homeDir <- "/share/ScratchGeneral/jamtor/"
 projectDir <- paste0(homeDir, "/projects/", project, "/", expName, "/", sampleName, "/")
 resultsDir <- paste0(projectDir, "/results")
 refDir <- paste0(projectDir, "/refs/")
@@ -40,8 +45,7 @@ RobjectDir <- paste0(projectDir, "/Robjects/",
 plotDir <- paste0(resultsDir, "/R/plots/")
 tableDir <- paste0(resultsDir, "/R/tables/")
 
-inDir <- paste0(resultsDir, "/macs2/")
-
+inDir <- paste0(resultsDir, "/bwa/")
 DE_dir <- paste0(homeDir,
                  "projects/hgsoc_repeats/RNA-seq/results/R/exp9/plots/DEplots/htseq_EdgeR_primary_HGSOC_vs_FT/")
 
@@ -49,59 +53,54 @@ system(paste0("mkdir -p ", plotDir))
 system(paste0("mkdir -p ", tableDir))
 system(paste0("mkdir -p ", RobjectDir))
 
-conts <- read.table(paste0(refDir, "/HGSOC_H3K27me3_H3K4me3_ctls.txt"),
-                      header=T, fill=T)
-conts <- conts[1:30,]
-
-H3K27me3_ctl <- conts$H3K27me3
-H3K4me3_ctl <- conts$H3K4me3
-
+pos_ctl <- read.table(file=paste0(DE_dir, "/top_50_up_genes_allsymbols_DE.txt"))
+neg_ctl <- read.table(file=paste0(DE_dir, "/top_50_down_genes_allsymbols_DE.txt"))
+                      
 
 ##########################################################################
-### 1. Load in peak files ###
+### 1. Load in ChIP reads files ###
 ##########################################################################
 
-if ( !file.exists(paste0(RobjectDir, "peak_gr.rds")) ) {
+if ( !file.exists(paste0(RobjectDir, "reads_gr.rds")) ) {
   
-  print("Creating peaks GRanges object...")
-  inFiles <- grep(
-    "gapped", list.files(inDir, pattern = "Peak$", full.names = T), invert=T, value = T
+  in_files <- grep(
+    "input", list.files(
+      inDir, pattern = "sorted.bam$", full.names = T
+    ), invert=T, value = T
   )
   
-  for ( i in 1:length(inFiles) ) {
-    print(i)
-    id <- gsub(
-      "_peaks.*$", "", basename(inFiles[i])
-    )
+  # specify scambam parameters:
+  what <- c("qname", "rname", "strand", "pos", "qwidth")
+  param <- ScanBamParam(what=what)
+  
+  # load in bams:
+  for ( i in 1:length(in_files) ) {
     if (i==1) {
-      peaks <- list(read.table(inFiles[i], header = F, sep = "\t"))
-      names(peaks)[i] <- id
+      bams <- list(scanBam(in_files[i], param=param))
     } else {
-      peaks[[i]] <- read.table(inFiles[i], header = F, sep = "\t")
-      names(peaks)[i] <- id
+      bams[[i]] <- scanBam(in_files[i], param=param)
     }
   }
   
-  #convert the inFile to GRanges object:
-  peak_gr <- lapply(peaks, function(x) {
-    x$V1 <- as.character(x$V1)
-      
-    x <- x[grep("G|K|MT", as.character(x$V1), invert = T),]
-    return(
-      GRanges(
-        seqnames = x$V1,
-        ranges = IRanges(start=x$V2, 
-                         end=x$V3),
-        strand = rep("*", nrow(x)),
-        read_id  = x$V4
-      )
+  # convert the bams to GRanges object:
+  reads_gr <- lapply(bams, function(x) {
+    x <- x[[1]]
+    x$qname <- as.character(x$qname)
+  
+    GRanges(
+      seqnames = x$qname,
+      ranges = IRanges(start=x$pos, width=x$qwidth),
+      strand = x$strand,
+      read_id  = x$rname
     )
   })
-  saveRDS(peak_gr, paste0(RobjectDir, "/peak_gr.rds"))
+  reads_gr <- reads_gr[grep("K|G|MT", reads_gr$qnames, invert=T)]
+  
+  saveRDS(reads_gr, paste0(RobjectDir, "/read_gr.rds"))
   
 } else {
-  print("Loading peaks GRanges object...")
-  peak_gr <- readRDS(paste0(RobjectDir, "/peak_gr.rds"))
+  print("Loading reads GRanges object...")
+  reads_gr <- readRDS(paste0(RobjectDir, "/reads_gr.rds"))
 }
 
 
@@ -114,7 +113,7 @@ seq_lengths <- seqlengths(Hsapiens)[!grepl("_",names(seqlengths(Hsapiens)))]
 
 # create function to remove unwanted references and add to either side of 
 # ranges of annotation:
-exp_annot <- function(annot, leng) {
+exp_annot <- function(annot, Length, Position) {
   # remove unwanted chromosome constructs:
   annot <- annot[grep("[0-9].[0-9]|M", seqnames(annot), 
                       invert = T)]
@@ -127,20 +126,52 @@ exp_annot <- function(annot, leng) {
     annot$seq_lengths[as.character(seqnames(annot)) == v] <- seq_lengths[v]
   }
   
-  # add length to the start of each ranges if the start is that length or more from
-  # the start of the chromosome:
-  start(ranges(annot))[start(ranges(annot)) >= leng
-                       ] <- start(ranges(annot))[start(ranges(annot)) >= leng] - leng
   
-  # add length to the end of each ranges if the end is length bp or more from
-  # the end of the chromosome:
-  end(ranges(annot))[end(ranges(annot)) <= 
-                       (annot$seq_lengths - leng)] <- 
-    end(ranges(annot))[end(ranges(annot)) <= 
-                         (annot$seq_lengths - leng)] + leng
-  return(annot)
+  if ( Position == "body" ) {
+    # add length to the start of each ranges if the start is that length or more from
+    # the start of the chromosome:
+    start(ranges(annot))[start(ranges(annot)) >= Length] <- 
+      start(ranges(annot))[start(ranges(annot)) >= Length] - Length
+    
+    # add length to the end of each ranges if the end is length bp or more from
+    # the end of the chromosome:
+    end(ranges(annot))[end(ranges(annot)) <= (annot$seq_lengths - Length)] <- 
+      end(ranges(annot))[end(ranges(annot)) <= (annot$seq_lengths - Length)] + Length
+    return(annot)
+    
+  } else {
+    
+    # add length upstream of each range to another gr:
+    start_annot <- annot
+    # make end position equal to original start position:
+    end(ranges(start_annot)) <- start(ranges(start_annot))
+    # make start position the original start position - Length if the original start is at least Length
+    # away from start of chromosome:
+    start(start_annot)[start(ranges(start_annot)) >= Length] <- 
+      start(ranges(start_annot))[start(ranges(start_annot)) >= Length] - Length
+    
+    if ( Position == "upstream" ) {
+      
+      return(start_annot)
+      
+    } else if ( Position == "up_and_downstream" ) {
+      
+      # add length downstream of each range to another gr:
+      end_annot <- annot
+      
+      # make start position equal to original end position:
+      start(ranges(end_annot)) <- end(ranges(end_annot))
+      # make end position the original end position + Length if the send is at least Length
+      # away from end of chromosome:
+      end(ranges(end_annot))[end(ranges(end_annot)) <= (end_annot$seq_lengths - Length)] <- 
+        end(ranges(end_annot))[end(ranges(end_annot)) <= (end_annot$seq_lengths - Length)] + Length
+      
+      # return combined start and end annotations:
+      return(c(start_annot, end_annot))
+      
+    }
+  }
 }
-
 
 if ( !file.exists(paste0(RobjectDir, "/rp_exp.rds")) ) {
   
@@ -148,8 +179,8 @@ if ( !file.exists(paste0(RobjectDir, "/rp_exp.rds")) ) {
   # load repeats annotation:
   rp_annot <- import(paste0(refDir, "custom3rep.final.gff"))
   
-  # expand ranges by 1000 bp either side:
-  rp_annot <- exp_annot(rp_annot, 1000)
+  # expand ranges by 500 bp either side:
+  rp_annot <- exp_annot(rp_annot, exp_no, incl_marks)
   
   # split annot into GRangesLists by IDs/names:
   rp_annot <- split(rp_annot, rp_annot$ID)

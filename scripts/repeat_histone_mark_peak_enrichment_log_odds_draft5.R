@@ -49,12 +49,11 @@ system(paste0("mkdir -p ", plotDir))
 system(paste0("mkdir -p ", tableDir))
 system(paste0("mkdir -p ", RobjectDir))
 
-conts <- read.table(paste0(refDir, "/HGSOC_H3K27me3_H3K4me3_ctls.txt"),
+ctls <- read.table(paste0(refDir, "/HGSOC_H3K27me3_H3K4me3_ctls.txt"),
                       header=T, fill=T)
-conts <- conts[1:30,]
 
-H3K27me3_ctl <- conts$H3K27me3
-H3K4me3_ctl <- conts$H3K4me3
+H3K27me3_ctl <- ctls$H3K27me3
+H3K4me3_ctl <- ctls$H3K4me3
 
 
 ##########################################################################
@@ -172,8 +171,8 @@ if ( !file.exists(paste0(RobjectDir, "/ctls_exp.rds")) ) {
   
   # isolate control ranges from gc:
   ctls <- gc[gc$gene_name %in% H3K27me3_ctl|gc$gene_name %in% H3K4me3_ctl]
-  #values(ctls)[ctls$gene_name %in% H3K27me3_ctl]$ctl_type <- "H3K27me3"
-  #values(ctls)[ctls$gene_name %in% H3K4me3_ctl]$ctl_type <- "H3K4me3"
+  #values(ctls)[ctls$gene_name %in% H3K27me3_ctl]$ctl_type <- "positive"
+  #values(ctls)[ctls$gene_name %in% H3K4me3_ctl]$ctl_type <- "negative"
   values(ctls) <- subset(values(ctls), select=gene_name)
   colnames(values(ctls)) <- "ID"
   
@@ -199,7 +198,7 @@ if ( !file.exists(paste0(RobjectDir, "/repeats_peak_overlap_odds.rds")) ) {
   
   # fetch summed length of all chromosomes
   chrs <- seqlengths(Hsapiens)[!grepl("_",names(seqlengths(Hsapiens)))]
-  chr_gr <- GRanges(seqnames=names(chrs),IRanges(1,chrs))
+  chr_gr < -GRanges(seqnames=names(chrs),IRanges(1,chrs))
   
   oddsRatio <- function(database, region){
     
@@ -241,13 +240,14 @@ if ( !file.exists(paste0(RobjectDir, "/repeats_peak_overlap_odds.rds")) ) {
     
     # calculate p-value for odds:
     database_enrichment <-
-      matrix( c(as.numeric(region_hits), as.numeric(non_region_hits), 
-      as.numeric(region_length), as.numeric(non_region)), nrow = 2,
-      ncol = 2 )
-    colnames(database_enrichment) = c("hits", "non-hits")
-    rownames(database_enrichment) = c("region", "non-region")
-
-    pval <- chisq.test(database_enrichment)$p.value
+      matrix(c(as.numeric(region_hits), as.numeric(region_length), 
+               as.numeric(non_region_hits), as.numeric(non_region)),
+             nrow = 2,
+             dimnames = list(Regions = c("Intersecting_repeats", 
+                                         "Total"),
+                             Genome = c("Intersecting_repeats", 
+                                        "Total")))
+    pval=chisq.test(database_enrichment)$p.value
     print("P-value is:")
     cat(pval)
     cat("\n")
@@ -320,15 +320,15 @@ plot_odds <- function(odds, pval = p_thresh, sig_only = T) {
   odds_sig <- odds_DE[(odds_DE$pval < p_thresh & odds_DE$pval != 0 & 
                          odds_DE$std_error <= 0.2),]
     
-  # fetch bind H3K27me3 and H3K4me3 control data frames and annotate
+  # fetch bind positive and negative control data frames and annotate
   # before binding with odds_sig:
   odds_sig$type <- "repeat"
   
-  H3K27me3_temp <- cont[[k]][rownames(cont[[k]]) %in% H3K27me3_ctl,]
-  H3K27me3_temp$type <- "H3K27me3_control"
-  H3K4me3_temp <- cont[[k]][rownames(cont[[k]]) %in% H3K4me3_ctl,]
-  H3K4me3_temp$type <- "H3K4me3_control"
-  ctl_df <- rbind(H3K27me3_temp, H3K4me3_temp)
+  pos_temp <- cont[[k]][rownames(cont[[k]]) %in% H3K27me3_ctl,]
+  pos_temp$type <- "positive_control"
+  neg_temp <- cont[[k]][rownames(cont[[k]]) %in% H3K4me3_ctl,]
+  neg_temp$type <- "negative_control"
+  ctl_df <- rbind(pos_temp, neg_temp)
   
   # filter by odds:
   ctl_DE <- ctl_df[ctl_df$odds != 0,]
