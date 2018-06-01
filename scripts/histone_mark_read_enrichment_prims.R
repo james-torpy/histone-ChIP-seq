@@ -1,7 +1,8 @@
-### repeat_histone_mark_read_enrichment_log_odds.R ###
+### H3K27me3_repeat_enrichment.R ###
 
-# This script takes a bam file from a histone mark ChIP-seq alignment and 
-# calculates the log odds of mark enrichment in repeat regions
+# This script takes a bam file from a ChIP-seq BWA alignment and overlaps
+# the bam GRanges with the Repbase repeats annotation and a fake repeats
+# annotation to check for H3K27me3 enrichment in repeat regions
 
 
 ##########################################################################
@@ -23,15 +24,17 @@ library(scales)
 # define starting variables:
 project <- "hgsoc_repeats"
 expName <- "histone-ChIP-seq"
-sampleName <- "chapman-rothe_2013"
+sampleName <- "chapman-rothe_2013_2"
 descrip <- paste0(sampleName, "_enrichment")
 
 p_thresh <- 0.1
 
 # specify regions to include for marks (body, upstream, up_and_downstream)
-incl_marks <- "body_no_promoter"
+incl_marks <- "upstream"
 # specify how many bp up/downstream to expand repeats annotation by:
-exp_no <- 500
+exp_no <- 2000
+
+descrip <- paste0(sampleName, "_", exp_no, incl_marks)
 
 # define directories:
 #homeDir <- "/Users/jamestorpy/clusterHome/"
@@ -40,7 +43,7 @@ projectDir <- paste0(homeDir, "/projects/", project, "/", expName, "/", sampleNa
 resultsDir <- paste0(projectDir, "/results")
 refDir <- paste0(projectDir, "/refs/")
 RobjectDir <- paste0(projectDir, "/Robjects/")
-newRobjectDir <- paste0(RobjectDir, "/", incl_marks, "/")
+newRobjectDir <- paste0(projectDir, "/Robjects/", descrip, "/")
 plotDir <- paste0(resultsDir, "/R/plots/")
 tableDir <- paste0(resultsDir, "/R/tables/")
 
@@ -51,16 +54,10 @@ DE_dir <- paste0(homeDir,
 system(paste0("mkdir -p ", plotDir))
 system(paste0("mkdir -p ", tableDir))
 system(paste0("mkdir -p ", RobjectDir))
-system(paste0("mkdir -p ", newRobjectDir))
 
 pos_ctl <- read.table(file=paste0(DE_dir, "/top_50_up_genes_allsymbols_DE.txt"))$symbol
 neg_ctl <- read.table(file=paste0(DE_dir, "/top_50_down_genes_allsymbols_DE.txt"))$symbol
-
-# set up parallel workers:
-no_cores <- 19
-print(paste0("No. cores are: ", no_cores))
-cl <- makeCluster(no_cores)             
-
+                      
 
 ##########################################################################
 ### 1. Load in ChIP reads files ###
@@ -68,7 +65,7 @@ cl <- makeCluster(no_cores)
 
 if ( !file.exists(paste0(RobjectDir, "read_gr.rds")) ) {
   
-    in_files <- grep(
+  in_files <- grep(
     "input", list.files(
       inDir, pattern = "sorted.bam$", full.names = T
     ), invert=T, value = T
@@ -76,29 +73,21 @@ if ( !file.exists(paste0(RobjectDir, "read_gr.rds")) ) {
   
   s_ids <- gsub("\\.sorted.bam", "", basename(in_files))
   
+  # specify scambam parameters:
+  what <- c("qname", "rname", "strand", "pos", "qwidth")
+  param <- ScanBamParam(what=what)
+  
+  # load in bams:
   for ( i in 1:length(in_files) ) {
     if (i==1) {
-      files_list <- list(in_files[i])
+      bams <- list(scanBam(in_files[i], param=param))
     } else {
-      files_list[[i]] <- in_files[i]
+      bams[[i]] <- scanBam(in_files[i], param=param)
     }
   }
   
-  load_bam <- function(x) {
-    library(Rsamtools)
-    # specify scambam parameters:
-    what <- c("qname", "rname", "strand", "pos", "qwidth")
-    param <- ScanBamParam(what=what)
-    return(scanBam(x, param=param))
-  }
-
-  # load in bams in parallel:
-  bams <- parLapply(cl, in_files, load_bam)
-  
-  # convert the bams to GRanges object (336.576 sec with parLapply):
-  read_gr <- parLapply(cl, bams, function(x) {
-    library(rtracklayer)
-    library(GenomicRanges)
+  # convert the bams to GRanges object:
+  read_gr <- lapply(bams, function(x) {
     x <- x[[1]]
     x$qname <- as.character(x$qname)
     result <- GRanges(
@@ -144,9 +133,7 @@ exp_annot <- function(annot, Length, Position) {
   }
   
   
-
   if ( Position == "body" ) {
-
     # add length to the start of each ranges if the start is that length or more from
     # the start of the chromosome:
     start(ranges(annot))[start(ranges(annot)) >= Length] <- 
@@ -157,11 +144,7 @@ exp_annot <- function(annot, Length, Position) {
     end(ranges(annot))[end(ranges(annot)) <= (annot$seq_lengths - Length)] <- 
       end(ranges(annot))[end(ranges(annot)) <= (annot$seq_lengths - Length)] + Length
     return(annot)
-
-  } else if ( Position == "body_no_promoter") {
-
-    return(annot) 
-
+    
   } else {
     
     # add length upstream of each range to another gr:
@@ -196,7 +179,7 @@ exp_annot <- function(annot, Length, Position) {
   }
 }
 
-if ( !file.exists(paste0(newRobjectDir, "/rp_", incl_marks, ".rds")) ) {
+if ( !file.exists(paste0(RobjectDir, "/rp_", incl_marks, ".rds")) ) {
   
   print("Creating expanded repeat annotation...")
   # load repeats annotation:
@@ -208,13 +191,13 @@ if ( !file.exists(paste0(newRobjectDir, "/rp_", incl_marks, ".rds")) ) {
   # split annot into GRangesLists by IDs/names:
   rp_annot <- split(rp_annot, rp_annot$ID)
   
-  saveRDS(rp_annot, paste0(newRobjectDir, "/rp_", incl_marks, ".rds"))
+  saveRDS(rp_annot, paste0(RobjectDir, "/rp_", incl_marks, ".rds"))
 } else {
   print("Loading expanded repeat annotation...")
-  rp_annot <- readRDS(paste0(newRobjectDir, "/rp_", incl_marks, ".rds"))
+  rp_annot <- readRDS(paste0(RobjectDir, "/rp_", incl_marks, ".rds"))
 }
 
-if ( !file.exists(paste0(newRobjectDir, "/ctls_", incl_marks, ".rds")) ) {
+if ( !file.exists(paste0(RobjectDir, "/ctls_", incl_marks, ".rds")) ) {
   
   print("Creating expanded control annotation...")
   # load gencode annotation:
@@ -222,7 +205,7 @@ if ( !file.exists(paste0(newRobjectDir, "/ctls_", incl_marks, ".rds")) ) {
   
   # expand ranges by 500 bp either side:
   gc <- exp_annot(gc, exp_no, incl_marks)
-  saveRDS(gc, paste0(newRobjectDir, "/gc_", incl_marks, ".rds"))
+  saveRDS(gc, paste0(RobjectDir, "/gc_", incl_marks, ".rds"))
   
   # isolate control ranges from gc:
   ctls <- gc[gc$gene_name %in% pos_ctl|gc$gene_name %in% neg_ctl]
@@ -232,18 +215,18 @@ if ( !file.exists(paste0(newRobjectDir, "/ctls_", incl_marks, ".rds")) ) {
   # split annot into GRangesLists by IDs/names:
   ctls <- split(ctls, ctls$ID)
   
-  saveRDS(ctls, paste0(newRobjectDir, "/ctls_", incl_marks, ".rds"))
+  saveRDS(ctls, paste0(RobjectDir, "/ctls_", incl_marks, ".rds"))
   
 } else {
   print("Loading expanded control annotation...")
-  ctls <- readRDS(paste0(newRobjectDir, "/ctls_", incl_marks, ".rds"))
+  ctls <- readRDS(paste0(RobjectDir, "/ctls_", incl_marks, ".rds"))
 }
 
 save.image(file = paste0(newRobjectDir, "/annot_expanded.rds"))
 
 
 ##########################################################################
-### 3. Calculate log odds ratios of H3K27me3 enrichment in repeat and
+### 3. Calculate log odds ratios of reads enrichment in repeat and
 # control regions ###
 ##########################################################################
 
@@ -310,33 +293,28 @@ if ( !file.exists(paste0(newRobjectDir, "/repeats_read_overlap_odds.rds")) ) {
     return(result)
   }
   
-  # apply odds ratio function to each element with parLapply):
-  system.time(
-    for ( j in 1:length(read_gr) ) {
-      if (j==1) {
-  
-        rp_read_odds <- list(parLapply(cl, rp_annot, oddsRatio, read_gr[[j]]))
-        names(rp_read_odds)[j] <- names(read_gr)[j]
-        ctl_read_odds <- list(parLapply(cl, ctls, oddsRatio, read_gr[[j]]))
-        names(ctl_read_odds)[j] <- names(read_gr)[j]
-        
-      } else {
-        
-        rp_read_odds[[j]] <- parLapply(cl, rp_annot, oddsRatio, read_gr[[j]])
-        names(rp_read_odds)[j] <- names(read_gr)[j]
-        ctl_read_odds[[j]] <- parLapply(cl, ctls, oddsRatio, read_gr[[j]])
-        names(ctl_read_odds)[j] <- names(read_gr)[j]
-      }
+  # apply odds ratio function to each element:
+  for ( j in 1:length(read_gr) ) {
+    if (j==1) {
+      
+      rp_read_odds <- list(lapply(rp_annot, oddsRatio, read_gr[[j]]))
+      names(rp_read_odds)[j] <- names(read_gr)[j]
+      ctl_read_odds <- list(lapply(ctls, oddsRatio, read_gr[[j]]))
+      names(ctl_read_odds)[j] <- names(read_gr)[j]
+      
+    } else {
+      
+      rp_read_odds[[j]] <- lapply(rp_annot, oddsRatio, read_gr[[j]])
+      names(rp_read_odds)[j] <- names(read_gr)[j]
+      ctl_read_odds[[j]] <- lapply(ctls, oddsRatio, read_gr[[j]])
+      names(ctl_read_odds)[j] <- names(read_gr)[j]
+      
     }
-  )
+  }
   
   # bind odds results for repeats and controls into one data frame per 
   # sample/annotation combination:
-  rp_read_odds <- lapply(rp_read_odds, function(x) {
-    return(do.call("rbind", x))
-  })
-  
-  ctl_read_odds <- lapply(ctl_read_odds, function(x) {
+  rp_test <- lapply(rp_read_odds, function(x) {
     return(do.call("rbind", x))
   })
   
@@ -348,116 +326,3 @@ if ( !file.exists(paste0(newRobjectDir, "/repeats_read_overlap_odds.rds")) ) {
   ctl_read_odds <- readRDS(file = paste0(newRobjectDir, "/ctl_read_overlap_odds.rds"))
 }
 
-
-########################################################################
-### 3. Plot log odds ratios of H3K27me3 enrichment in repeat regions #
-########################################################################
-
-base_breaks <- function(n = 10){
-  function(x) {
-    axisTicks(log10(range(x, na.rm = TRUE)), log = TRUE, n = n)
-  }
-}
-
-min.mean.se.max <- function(x) {
-  r <- c(min(x), mean(x) - sd(x)/sqrt(length(x)), mean(x), 
-         mean(x) + sd(x)/sqrt(length(x)), max(x))
-  names(r) <- c("ymin", "lower", "middle", "upper", "ymax")
-  r
-}
-
-RNA_DE <- read.table(file = paste0(DE_dir, "/sig_rep_list.txt"))[,1]
-RNA_up <- factor(c("ACRO1", "HSATII", "GSATX", "BSR_Beta"))
-RNA_down <- RNA_DE[!(RNA_DE %in% RNA_up)]
-
-# create function to filter odds data frames by selected p-value and 
-# plot them with barplot:
-plot_odds <- function(odds, pval = p_thresh, sig_only = F) {
-  
-  # filter by odds:
-  odds_DE <- odds[odds$odds != 0,]
-  
-  # label repeats:
-  odds_DE$type <- "repeat"
-  odds_DE$type[rownames(odds_sig) %in% RNA_up] <- "up_repeat"
-  odds_DE$type[!(rownames(odds_sig) %in% RNA_up)] <- "down_repeat"
-  
-  # filter by p-value and std error of equal or below 0.2:
-  odds_sig <- odds_DE[odds_DE$pval < p_thresh,]
-    
-  neg_temp <- ctl_read_odds[[k]][rownames(ctl_read_odds[[k]]) %in% neg_ctl,]
-  neg_temp$type <- "negative_control"
-  pos_temp <- ctl_read_odds[[k]][rownames(ctl_read_odds[[k]]) %in% pos_ctl,]
-  pos_temp$type <- "positive_control"
-  ctl_df <- rbind(neg_temp, pos_temp)
-  
-  # filter by odds:
-  ctl_DE <- ctl_df[ctl_df$odds != 0,]
-  # filter by p-value:
-  ctl_sig <- ctl_DE[(ctl_DE$pval < p_thresh),]
-  
-  # plot controls and log odds:
-  if (sig_only) {
-    
-    all_df <- rbind(ctl_sig, odds_sig)
-    all_df$ID <- rownames(all_df)
-    
-    p <- ggplot(all_df, aes(y=odds, x=factor(type), fill = type))
-    p <- p + stat_summary(fun.data = min.mean.se.max, geom = "boxplot")
-    p <- p + geom_point()
-    p <- p + scale_y_continuous(trans = log_trans(), 
-                                breaks = base_breaks())
-    p <- p + ylab("log odds")
-    p <- p + theme(axis.text.x = element_text(angle = 90, hjust = 1, 
-                                              vjust = 0.6))
-    
-  } else {
-    
-    odds_DE$type[odds_DE$pval <= pval] <- 
-      paste0(odds_DE$type[odds_DE$pval <= pval], "_significant")
-    odds_DE$type[odds_DE$pval > pval] <- 
-      paste0(odds_DE$type[odds_DE$pval > pval], "_non-significant")
-    
-    all_df <- rbind(ctl_DE, odds_DE)
-    all_df$ID <- rownames(all_df)
-    all_df$type <- factor(all_df$type, levels = c("negative_control", 
-      "positive_control", "down_repeat_significant", 
-      "up_repeat_significant"))
-    
-    p <- ggplot(all_df, aes(y=odds, x=factor(type), fill = type))
-    p <- p + stat_summary(fun.data = min.mean.se.max, geom = "boxplot")
-    p <- p + geom_point()
-    p <- p + scale_y_continuous(trans = log_trans(), 
-                                breaks = base_breaks())
-    p <- p + ylab("log odds")
-    p <- p + theme(axis.text.x = element_text(angle = 90, hjust = 1, 
-                                              vjust = 0.6))
-    
-  }
-  
-  result <- all_df
-  k <<- k+1
-  return(list(p, result))
-}
- 
-# plot DE odds with p < 0.1:
-k=1
-odds_p0.1 <- lapply(rp_read_odds, plot_odds, pval = 0.1)
-
-# plot DE odds of repeats with DE RNA expression:
-
-RNA_DE_odds <- lapply(rp_read_odds, function(x) {
-  return(x[rownames(x) %in% RNA_DE,])
-})
-
-k=1
-RNA_DE_odds_p0.1 <- lapply(RNA_DE_odds, plot_odds, pval = 0.1)
-
-# save selected plots and tables:
-pdf(paste0(plotDir, "/HGSOC_H3K27me3_SRR600559_DErepeat_read_log_odds_p0.1.pdf"))
-print(RNA_DE_odds_p0.1[[1]])
-dev.off()
-
-pdf(paste0(plotDir, "/HGSOC_H3K4me3_SRR600956_DErepeat_read_log_odds_p0.1.pdf"))
-print(RNA_DE_odds_p0.1[[2]])
-dev.off()
