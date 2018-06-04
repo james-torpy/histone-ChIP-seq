@@ -34,17 +34,17 @@ incl_marks <- "body_no_promoter"
 exp_no <- 500
 
 # define directories:
-#homeDir <- "/Users/jamestorpy/clusterHome/"
-homeDir <- "/share/ScratchGeneral/jamtor/"
+homeDir <- "/Users/jamestorpy/clusterHome/"
+#homeDir <- "/share/ScratchGeneral/jamtor/"
 projectDir <- paste0(homeDir, "/projects/", project, "/", expName, "/", sampleName, "/")
 resultsDir <- paste0(projectDir, "/results")
 refDir <- paste0(projectDir, "/refs/")
-RobjectDir <- paste0(projectDir, "/Robjects/")
+RobjectDir <- paste0(projectDir, "/Robjects/subs/")
 newRobjectDir <- paste0(RobjectDir, "/", incl_marks, "/")
 plotDir <- paste0(resultsDir, "/R/plots/")
 tableDir <- paste0(resultsDir, "/R/tables/")
 
-inDir <- paste0(resultsDir, "/bwa/")
+inDir <- paste0(resultsDir, "/bwa/subs/")
 DE_dir <- paste0(homeDir,
                  "projects/hgsoc_repeats/RNA-seq/results/R/exp9/plots/DEplots/htseq_EdgeR_primary_HGSOC_vs_FT/")
 
@@ -66,9 +66,9 @@ cl <- makeCluster(no_cores)
 ### 1. Load in ChIP reads files ###
 ##########################################################################
 
-if ( !file.exists(paste0(RobjectDir, "read_gr.rds")) ) {
+if ( !file.exists(paste0(newRobjectDir, "read_gr.rds")) ) {
   
-    in_files <- grep(
+  in_files <- grep(
     "input", list.files(
       inDir, pattern = "sorted.bam$", full.names = T
     ), invert=T, value = T
@@ -117,7 +117,7 @@ if ( !file.exists(paste0(RobjectDir, "read_gr.rds")) ) {
   
 } else {
   print("Loading reads GRanges object...")
-  read_gr <- readRDS(paste0(RobjectDir, "/read_gr.rds"))
+  read_gr <- readRDS(paste0(newRobjectDir, "/read_gr.rds"))
 }
 
 
@@ -212,7 +212,7 @@ if ( !file.exists(paste0(newRobjectDir, "/rp_", incl_marks, ".rds")) ) {
   rp_annot <- readRDS(paste0(newRobjectDir, "/rp_", incl_marks, ".rds"))
 }
 
-if ( !file.exists(paste0(newRobjectDir, "/ctls_", incl_marks, ".rds")) ) {
+if ( !file.exists(paste0(newRobjectDir, "/CPMR_ctls_", incl_marks, ".rds")) ) {
   
   print("Creating expanded control annotation...")
   # load gencode annotation:
@@ -367,24 +367,24 @@ min.mean.se.max <- function(x) {
   r
 }
 
-RNA_DE <- read.table(file = paste0(DE_dir, "/sig_rep_list_FDR_0.05.txt"))[,1]
-RNA_up <- factor(c("ACRO1", "HSATII", "GSATX", "BSR_Beta"))
-RNA_down <- RNA_DE[!(RNA_DE %in% RNA_up)]
+RNA_DE <- read.table(file = paste0(DE_dir, "/sig_rep_list.txt"))[,1]
+RNA_up <- c("ACRO1", "HSATII", "GSATX", "BSR_Beta")
+RNA_down <- as.character(RNA_DE[!(RNA_DE %in% RNA_up)])
 
 # create function to filter odds data frames by selected p-value and 
 # plot them with barplot:
 plot_odds <- function(odds, pval = p_thresh, sig_only = F) {
   
   # filter by odds:
-  odds[odds$odds != 0,] <- 1
+  odds_DE <- odds[odds$odds != 0,]
   
   # label repeats:
-  odds$type <- "repeat"
-  odds$type[rownames(odds) %in% RNA_up] <- "up_repeat"
-  odds$type[!(rownames(odds) %in% RNA_up)] <- "down_repeat"
+  odds_DE$type <- "repeat"
+  odds_DE$type[rownames(odds_DE) %in% RNA_up] <- "up_repeat"
+  odds_DE$type[!(rownames(odds_DE) %in% RNA_up)] <- "down_repeat"
   
   # filter by p-value and std error of equal or below 0.2:
-  odds_sig <- odds[odds$pval < p_thresh,]
+  odds_sig <- odds_DE[odds_DE$pval < p_thresh,]
     
   neg_temp <- ctl_read_odds[[k]][rownames(ctl_read_odds[[k]]) %in% neg_ctl,]
   neg_temp$type <- "negative_control"
@@ -393,9 +393,9 @@ plot_odds <- function(odds, pval = p_thresh, sig_only = F) {
   ctl_df <- rbind(neg_temp, pos_temp)
   
   # filter by odds:
-  ctl_df[ctl_df$odds != 0,] <- 1
+  ctl_DE <- ctl_df[ctl_df$odds != 0,]
   # filter by p-value:
-  ctl_sig <- ctl_df[(ctl_df$pval < p_thresh),]
+  ctl_sig <- ctl_DE[(ctl_DE$pval < p_thresh),]
   
   # plot controls and log odds:
   if (sig_only) {
@@ -406,33 +406,32 @@ plot_odds <- function(odds, pval = p_thresh, sig_only = F) {
     p <- ggplot(all_df, aes(y=odds, x=factor(type), fill = type))
     p <- p + stat_summary(fun.data = min.mean.se.max, geom = "boxplot")
     p <- p + geom_point()
-    #p <- p + scale_y_continuous(trans = log_trans(), 
-    #                            breaks = base_breaks())
-    p <- p + ylab("odds")
+    p <- p + scale_y_log10()
+    p <- p + ylab("log10 odds")
     p <- p + theme(axis.text.x = element_text(angle = 90, hjust = 1, 
                                               vjust = 0.6))
     
   } else {
     
-    odds$type[odds$pval <= pval] <- 
-      paste0(odds$type[odds$pval <= pval], "_significant")
-    odds$type[odds$pval > pval] <- 
-      paste0(odds$type[odds$pval > pval], "_non-significant")
+    odds_DE$type[odds_DE$pval <= pval] <- 
+      paste0(odds_DE$type[odds_DE$pval <= pval], "_significant")
+    odds_DE$type[odds_DE$pval > pval] <- 
+      paste0(odds_DE$type[odds_DE$pval > pval], "_non-significant")
     
-    all_df <- rbind(ctl_df, odds)
+    all_df <- rbind(ctl_DE, odds_DE)
     all_df$ID <- rownames(all_df)
     all_df$type <- factor(all_df$type, levels = c("negative_control", 
       "positive_control", "down_repeat_significant", 
-      "up_repeat_significant"))
+      "up_repeat_significant", "down_repeat_non-significant", 
+      "up_repeat_non-significant"))
     
     p <- ggplot(all_df, aes(y=odds, x=factor(type), fill = type))
     p <- p + stat_summary(fun.data = min.mean.se.max, geom = "boxplot")
     p <- p + geom_point()
-    p <- p + scale_y_continuous(trans = log_trans(), 
-                                breaks = base_breaks())
-    p <- p + ylab("odds")
-    #p <- p + theme(axis.text.x = element_text(angle = 90, hjust = 1, 
-    #                                          vjust = 0.6))
+    p <- p + scale_y_log10()
+    p <- p + ylab("log10 odds")
+    p <- p + theme(axis.text.x = element_text(angle = 90, hjust = 1, 
+                                              vjust = 0.6))
     
   }
   
@@ -455,10 +454,80 @@ k=1
 RNA_DE_odds_p0.1 <- lapply(RNA_DE_odds, plot_odds, pval = 0.1)
 
 # save selected plots and tables:
-#pdf(paste0(plotDir, "/HGSOC_H3K27me3_SRR600559_DErepeat_read_log_odds_gene_body_CPMR_ctls_p0.1.pdf"))
-#print(RNA_DE_odds_p0.1[[1]])
-#dev.off()
+pdf(paste0(plotDir, "/HGSOC_H3K27me3_SRR600559_DErepeat_read_log_odds_gene_body_CPMR_ctls_p0.1.pdf"))
+print(RNA_DE_odds_p0.1[[1]])
+dev.off()
 
-#pdf(paste0(plotDir, "/HGSOC_H3K4me3_SRR600956_DErepeat_read_log_odds_p0.1.pdf"))
-#print(RNA_DE_odds_p0.1[[2]])
-#dev.off()
+pdf(paste0(plotDir, "/HGSOC_H3K4me3_SRR600956_DErepeat_read_log_odds_p0.1.pdf"))
+print(RNA_DE_odds_p0.1[[2]])
+dev.off()
+
+
+########################################################################
+### 4. Check odds method with fake data #
+########################################################################
+
+fake_read_gr <- read_gr
+fake_read_gr <- lapply(fake_read_gr, function(x) {
+  return(subset(x, select=-read_id))
+})
+
+
+fake_odds <- function(leng) {
+  
+  # make granges of 38 bp regions within ACTB annotation:
+  fake_ACTB <- ctls$ACTB[1:leng]
+  width(ranges(fake_ACTB)) <- 38
+  fake_ACTB <- subset(fake_ACTB, select=-ID)
+  
+  fake_ACTB2 <- fake_ACTB
+  start(ranges(fake_ACTB2)) <- start(ranges(fake_ACTB2)) + 10
+  end(ranges(fake_ACTB2)) <- end(ranges(fake_ACTB2)) + 10
+  
+  # remove all hits with RPS8 regions and add fake ACTB reads:
+  fake_read_gr <- lapply(fake_read_gr, function(x) {
+    RPS8_hits <- queryHits(findOverlaps(x, ctls$RPS8))
+    x <- x[-RPS8_hits]
+    return(c(x, fake_ACTB, fake_ACTB2))
+  })
+  
+  # re-run log odds on the fake data set:
+  for ( j in 1:length(fake_read_gr) ) {
+    if (j==1) {
+      
+      fake_ctl_read_odds <- list(lapply(ctls, oddsRatio, fake_read_gr[[j]]))
+      names(fake_ctl_read_odds)[j] <- names(fake_read_gr)[j]
+      
+    } else {
+      
+      fake_ctl_read_odds[[j]] <- lapply(ctls, oddsRatio, fake_read_gr[[j]])
+      names(fake_ctl_read_odds)[j] <- names(fake_read_gr)[j]
+    }
+  }
+  
+  fake_ctl_read_odds <- lapply(fake_ctl_read_odds, function(x) {
+    return(do.call("rbind", x))
+  })
+  
+  return(fake_ctl_read_odds)
+}
+
+fakes <- list(25, 50, 75, 100)
+fakes <- lapply(fakes, fake_odds)
+
+names(fakes) <- c("50", "100", "150", "200")
+
+
+
+comp <- data.frame(c(ctl_read_odds[[1]]$odds[1], fake_ctl_read_odds[[1]]$odds[1], 
+  faker_ctl_read_odds[[1]]$odds[1]), c(ctl_read_odds[[2]]$odds[1], 
+  fake_ctl_read_odds[[2]]$odds[1], faker_ctl_read_odds[[2]]$odds[1]))
+
+colnames(comp) <- c("H3K27me3", "H3K4me3")
+comp <- melt(comp, measure.vars=c("H3K27me3", "H3K4me3"))
+comp$type <- c("normal", "plus_109_fake_reads", "plus_218_fake_reads")
+comp$type <- paste0(comp$variable, comp$type)
+
+p <- ggplot(comp, aes(x=type, y=value))
+p <- p + geom_bar(aes(fill=variable), stat="identity")
+
