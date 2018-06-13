@@ -20,23 +20,23 @@ library(ggplot2)
 library(scales)
 library(reshape2)
 library(pheatmap)
+library(parallel)
 
 # define starting variables:
 project <- "hgsoc_repeats"
 expName <- "histone-ChIP-seq"
 sampleName <- "chapman-rothe_2013_hg19"
 descrip <- paste0(sampleName, "SICER_peak_enrichment")
+exp_nos <- c(500)
+posits <- list("upstream")
 
 # specify regions to include for marks (body, upstream, up_and_downstream)
-# pos <- "upstream"
+# Posit <- "upstream"
 # # specify how many bp up/downstream to expand repeats annotation by:
 # exp_no <- 2000
 # # specify whether subsets of annotations will be used (for debugging) - 
 # # either "body_no_promoter", "upstream" or "":
-# subset = ""
-
-exp_nos <- c(2000, 3000, 5000)
-posits <- list("body", "upstream", "up_and_downstream")
+Subset = ""
 
 # define directories:
 #homeDir <- "/Users/jamestorpy/clusterHome/"
@@ -49,9 +49,10 @@ plotDir <- paste0(resultsDir, "/R/plots/")
 tableDir <- paste0(resultsDir, "/R/tables/")
 
 inDir <- paste0(resultsDir, "/epic/")
-ref_dir <- 
+ref_dir <- paste0(projectDir, "/refs/")
 DE_dir <- paste0(homeDir,
   "projects/hgsoc_repeats/RNA-seq/results/R/exp9/plots/DEplots/htseq_EdgeR_primary_HGSOC_vs_FT/")
+
 
 system(paste0("mkdir -p ", plotDir))
 system(paste0("mkdir -p ", tableDir))
@@ -63,11 +64,11 @@ neg_ctl <- as.character(read.table(file=paste0(DE_dir, "/bottom_CPMR.txt"))[,1])
 
 H3K27me3_ctl <- read.table(file=paste0(refDir, "/HGSOC_H3K27me3_H3K4me3_ctls.txt"), 
                        sep = "\t", header=T)$H3K27me3
-H3K27me3_ctl <- H3K27me3_ctl[1:50]
+H3K27me3_ctl <- H3K27me3_ctl[1:200]
 H3K27me3_ctl <- as.character(H3K27me3_ctl[grep("^$", H3K27me3_ctl, invert=T)])
 H3K4me3_ctl <- read.table(file=paste0(refDir, "/HGSOC_H3K27me3_H3K4me3_ctls.txt"), 
                       sep = "\t", header=T)$H3K4me3
-H3K4me3_ctl <- H3K4me3_ctl[1:50]
+H3K4me3_ctl <- H3K4me3_ctl[1:200]
 H3K4me3_ctl <- as.character(H3K4me3_ctl[grep("^$", H3K4me3_ctl, invert=T)])
 
 # set up parallel workers:
@@ -75,67 +76,138 @@ no_cores <- 3
 print(paste0("No. cores are: ", no_cores))
 cl <- makeCluster(no_cores)             
 
+for (o in 1:length(exp_nos)) {
 
-##########################################################################
-### 1. Load in ChIP reads files ###
-##########################################################################
+  clusterExport(cl, "o")
+  res <- lapply(posits, function(Posit) {  
 
-in_files <- list.files(inDir, pattern = ".bed", full.names = T, 
-                       recursive = T)
+    exp_nos <- c(500)
+    posits <- list("upstream")
 
-s_ids <- gsub("\\.bed", "", basename(in_files))
-
-if ( !file.exists(paste0(RobjectDir, "peak_gr.rds")) ) {
-  
-  for ( i in 1:length(in_files) ) {
-    if (i==1) {
-      files_list <- list(in_files[i])
-    } else {
-      files_list[[i]] <- in_files[i]
-    }
-  }
-  
-  load_bed <- function(x) {
     
+    # load packages needed:
+    library(tibble)
+    library(dplyr)
+    library(Rsamtools)
     library(rtracklayer)
     library(GenomicRanges)
+    library("BSgenome.Hsapiens.UCSC.hg38")
+    library(plyr)
+    library(ggplot2)
+    library(scales)
+    library(reshape2)
+    library(pheatmap)
     
-    # read in bed as table:
-    tab <- read.table(x, sep = "\t")
+    # define starting variables:
+    project <- "hgsoc_repeats"
+    expName <- "histone-ChIP-seq"
+    sampleName <- "chapman-rothe_2013_hg19"
+    descrip <- paste0(sampleName, "SICER_peak_enrichment")
     
-    # convert to GRanges object:
-    result <- GRanges(
-      seqnames = tab$V1,
-      ranges = IRanges(start=tab$V2, end=tab$V3),
-      strand = "*",
-      FDR  = tab$V4
-    ) 
-    result <- result[grep("K|G|MT", seqnames(result), invert=T)]
-    return(result)
     
-  }
-  
-  # load in bams in parallel:
-  peak_gr <- lapply(in_files, load_bed)
-  names(peak_gr) <- s_ids
-  
-  saveRDS(peak_gr, paste0(RobjectDir, "/peak_gr.rds"))
-  
-} else {
-  print("Loading reads GRanges object...")
-  peak_gr <- readRDS(paste0(RobjectDir, "/peak_gr.rds"))
-}
+    # specify regions to include for marks (body, upstream, up_and_downstream)
+    # Posit <- "upstream"
+    # # specify how many bp up/downstream to expand repeats annotation by:
+    # exp_no <- 2000
+    # # specify whether subsets of annotations will be used (for debugging) - 
+    # # either "body_no_promoter", "upstream" or "":
+    Subset = ""
     
+    # define directories:
+    #homeDir <- "/Users/jamestorpy/clusterHome/"
+    homeDir <- "/share/ScratchGeneral/jamtor/"
+    projectDir <- paste0(homeDir, "/projects/", project, "/", expName, "/", sampleName, "/")
+    resultsDir <- paste0(projectDir, "/results")
+    refDir <- paste0(projectDir, "/refs/")
+    RobjectDir <- paste0(projectDir, "/Robjects/")
+    plotDir <- paste0(resultsDir, "/R/plots/")
+    tableDir <- paste0(resultsDir, "/R/tables/")
+    
+    inDir <- paste0(resultsDir, "/epic/")
+    ref_dir <- paste0(projectDir, "/refs/")
+    DE_dir <- paste0(homeDir,
+      "projects/hgsoc_repeats/RNA-seq/results/R/exp9/plots/DEplots/htseq_EdgeR_primary_HGSOC_vs_FT/")
+    
+    
+    system(paste0("mkdir -p ", plotDir))
+    system(paste0("mkdir -p ", tableDir))
+    system(paste0("mkdir -p ", RobjectDir))
+    system(paste0("mkdir -p ", RobjectDir))
+    
+    pos_ctl <- as.character(read.table(file=paste0(DE_dir, "/top_CPMR.txt"))[,1])
+    neg_ctl <- as.character(read.table(file=paste0(DE_dir, "/bottom_CPMR.txt"))[,1])
+    
+    H3K27me3_ctl <- read.table(file=paste0(refDir, "/HGSOC_H3K27me3_H3K4me3_ctls.txt"), 
+                           sep = "\t", header=T)$H3K27me3
+    H3K27me3_ctl <- H3K27me3_ctl[1:50]
+    H3K27me3_ctl <- as.character(H3K27me3_ctl[grep("^$", H3K27me3_ctl, invert=T)])
+    H3K4me3_ctl <- read.table(file=paste0(refDir, "/HGSOC_H3K27me3_H3K4me3_ctls.txt"), 
+                          sep = "\t", header=T)$H3K4me3
+    H3K4me3_ctl <- H3K4me3_ctl[1:50]
+    H3K4me3_ctl <- as.character(H3K4me3_ctl[grep("^$", H3K4me3_ctl, invert=T)])
+    
+        
+    ##########################################################################
+    ### 1. Load in ChIP reads files ###
+    ##########################################################################
+    
+    in_files <- list.files(inDir, pattern = ".bed", full.names = T, 
+                           recursive = T)
+    
+    
+    s_ids <- gsub("\\.bed", "", basename(in_files))
+    
+    
+    if ( !file.exists(paste0(RobjectDir, "peak_gr.rds")) ) {
+      
+      for ( i in 1:length(in_files) ) {
+        if (i==1) {
+          files_list <- list(in_files[i])
+        } else {
+          files_list[[i]] <- in_files[i]
+        }
+      }
+      
+      load_bed <- function(x) {
+        
+        library(rtracklayer)
+        library(GenomicRanges)
+        
+        # read in bed as table:
+        tab <- read.table(x, sep = "\t")
+        
+        # convert to GRanges object:
+        result <- GRanges(
+          seqnames = tab$V1,
+          ranges = IRanges(start=tab$V2, end=tab$V3),
+          strand = "*",
+          FDR  = tab$V4
+        ) 
+        result <- result[grep("K|G|MT", seqnames(result), invert=T)]
+        return(result)
+        
+      }
+      
+      # load in bams in parallel:
+      peak_gr <- lapply(in_files, load_bed)
+      names(peak_gr) <- s_ids
+      
+      saveRDS(peak_gr, paste0(RobjectDir, "/peak_gr.rds"))
+      
+    } else {
+      print("Loading reads GRanges object...")
+      peak_gr <- readRDS(paste0(RobjectDir, "/peak_gr.rds"))
+    }  
 
-for (o in 1:length(exp_nos)) {
-  res <- parLapply(cl, posits, function(pos) {    
+
     ##########################################################################
     ### 2. Load in repeat and gencode annotations ###
     ##########################################################################
     
+    
     # create function to remove unwanted references and add to either side of 
     # ranges of annotation:
-    exp_annot <- function(annot, Length, pos, is_ctl=F) {
+    exp_annot <- function(annot, Length, Posit, is_ctl=F) {
       
       library("BSgenome.Hsapiens.UCSC.hg38")
       # define lengths of chromosomes:
@@ -144,7 +216,7 @@ for (o in 1:length(exp_nos)) {
       # remove unwanted chromosome constructs:
       annot <- annot[grep("[0-9].[0-9]|MT|G|K", seqnames(annot), invert = T)]
       
-      if ( length(annot) > 0) {
+      if ( length(annot) > 0 ) {
         # reduce ranges:
         annot <- reduce(annot)
         
@@ -161,7 +233,7 @@ for (o in 1:length(exp_nos)) {
           annot$seq_lengths[as.character(seqnames(annot)) == v] <- seq_lengths[v]
         }
         
-        if ( pos == "body" ) {
+        if ( Posit == "body" ) {
           
           # add length to the start of each ranges if the start is that length or more from
           # the start of the chromosome:
@@ -175,7 +247,7 @@ for (o in 1:length(exp_nos)) {
           
           return(annot)
           
-        } else if ( pos == "body_no_promoter" ) {
+        } else if ( Posit == "body_no_promoter" ) {
           
           return(annot) 
           
@@ -190,11 +262,11 @@ for (o in 1:length(exp_nos)) {
           start(start_annot)[start(ranges(start_annot)) >= Length] <- 
             start(ranges(start_annot))[start(ranges(start_annot)) >= Length] - Length
           
-          if ( pos == "upstream" ) {
+          if ( Posit == "upstream" ) {
             
             return(start_annot)
             
-          } else if ( pos == "up_and_downstream" ) {
+          } else if ( Posit == "up_and_downstream" ) {
             
             # add length downstream of each range to another gr:
             end_annot <- annot
@@ -218,9 +290,8 @@ for (o in 1:length(exp_nos)) {
         }
       }
     }
-    
-    if ( !file.exists(paste0(RobjectDir, "/rp_", pos, "_", subset, 
-                             "_", exp_nos[o], "bp.rds")) ) {
+
+    if ( !file.exists(paste0(RobjectDir, "/rp_", Posit, "_", Subset, "_", as.character(exp_nos[o]), "bp.rds")) ) {
       
       print("Creating expanded repeat annotation...")
       # load repeats annotation:
@@ -229,7 +300,7 @@ for (o in 1:length(exp_nos)) {
       # split annot into GRangesLists by IDs/names:
       rp_annot <- split(rp_annot, rp_annot$ID)
       
-      if ( subset == "body_no_promoter_subset" ) {
+      if ( Subset == "body_no_promoter_subset" ) {
         # subset annotation:
         L1MA9_eg <- rp_annot$L1MA9[start(rp_annot$L1MA9) == 12420804]
         L1M5_eg <- rp_annot$L1M5[start(rp_annot$L1M5) == 197813669]
@@ -238,7 +309,7 @@ for (o in 1:length(exp_nos)) {
         rp_annot <- GRangesList(L1MA9_eg, L1M5_eg, L1MC2_eg, LSAU_eg)
         names(rp_annot) <- c("L1MA9", "L1M5", "L1MC2", "LSAU")
         
-      } else if ( subset == "upstream_subset" ) {
+      } else if ( Subset == "upstream_subset" ) {
         
         # subset annotation:
         Kanga1_eg <- rp_annot$Kanga1[start(rp_annot$Kanga1) == 54245008]
@@ -249,21 +320,24 @@ for (o in 1:length(exp_nos)) {
         names(rp_annot) <- c("Kanga1", "AluJr4", "L1M1", "L1MCa")
       }
       
+      
       # select subsection of ranges:
       rp_annot <- lapply(rp_annot, exp_annot, Length = exp_nos[o],
-                         pos = pos)
+                         Posit = Posit)
       
-      saveRDS(rp_annot, paste0(RobjectDir, "/rp_", pos, "_", subset, 
+      
+      saveRDS(rp_annot, paste0(RobjectDir, "/rp_", Posit, "_", Subset, 
                                "_", exp_nos[o], "bp.rds"))
       
     } else {
       print("Loading expanded repeat annotation...")
-      rp_annot <- readRDS(paste0(RobjectDir, "/rp_", pos, "_", subset, 
+      rp_annot <- readRDS(paste0(RobjectDir, "/rp_", Posit, "_", Subset, 
                                  "_", exp_nos[o], "bp.rds"))
     }
     
-    if ( !file.exists(paste0(RobjectDir, "/CPMR_ctls_", pos, "_", 
-                             subset, "_", exp_nos[o], "bp.rds")) ) {
+    
+    if ( !file.exists(paste0(RobjectDir, "/CPMR_ctls_", Posit, "_", 
+                           Subset, "_", exp_nos[o], "bp.rds")) ) {
       
       print("Creating expanded control annotation...")
       # load gencode annotation:
@@ -278,13 +352,13 @@ for (o in 1:length(exp_nos)) {
       # split annot into GRangesLists by IDs/names:
       ctls <- split(ctls, ctls$ID)
       
-      if ( subset == "body_no_promoter_subset" ) {
+      if ( Subset == "body_no_promoter_subset" ) {
         
         # subset annotation:
         ctls <- GRangesList(ctls$ATP12A, ctls$KCNQ2, ctls$ACTB, ctls$BSND)
         names(ctls) <- c("ATP12A", "KCNQ2", "ACTB", "BSND")
         
-      } else if ( subset == "upstream_subset" ) {
+      } else if ( Subset == "upstream_subset" ) {
         
         # subset annotation:
         ctls <- GRangesList(ctls$ATP12A, ctls$KCNQ2, ctls$ACTB, ctls$BSND)
@@ -294,21 +368,23 @@ for (o in 1:length(exp_nos)) {
       
       # extract regions of interest from ranges:
       ctls <- lapply(ctls, exp_annot, Length = exp_nos[o], 
-                        pos = pos, is_ctl = T)
+                        Posit = Posit, is_ctl = T)
       
       # remove NULL values:
-      ctls <- ctls[-which(unlist(lapply(ctls, is.null)))]
+      if ( any(unlist(lapply(ctls, is.null))) ) {
+        ctls <- ctls[-which(unlist(lapply(ctls, is.null)))]
+      }
       
-      saveRDS(ctls, paste0(RobjectDir, "/CPMR_ctls_", pos, "_", 
-                           subset, "_", exp_nos[o], "bp.rds"))
+      saveRDS(ctls, paste0(RobjectDir, "/CPMR_ctls_", Posit, "_", 
+                           Subset, "_", exp_nos[o], "bp.rds"))
       
     } else {
       print("Loading expanded control annotation...")
-      ctls <- readRDS(paste0(RobjectDir, "/CPMR_ctls_", pos, "_", 
-                             subset, "_", exp_nos[o], "bp.rds"))
+      ctls <- readRDS(paste0(RobjectDir, "/CPMR_ctls_", Posit, "_", 
+                           Subset, "_", exp_nos[o], "bp.rds"))
     }
     
-    save.image(file = paste0(RobjectDir, "/annot_expanded_", subset, 
+    save.image(file = paste0(RobjectDir, "/annot_expanded_", Subset, 
                              "_", exp_nos[o], "bp.rds"))
     
     
@@ -318,14 +394,15 @@ for (o in 1:length(exp_nos)) {
     ##########################################################################
     
     if ( !file.exists(paste0(RobjectDir, 
-                             "/repeats_peak_overlap_data_", subset, "_", exp_nos[o], "bp.rds")) & 
+                             "/repeats_peak_overlap_data_", Subset, "_", exp_nos[o], "bp.rds")) & 
          !file.exists(paste0(RobjectDir, 
-                             "/ctl_peak_overlap_data_", subset, "_", exp_nos[o], "bp.rds")) ) {
+                             "/ctl_peak_overlap_data_", Subset, "_", exp_nos[o], "bp.rds")) ) {
       
       count_repeat_peaks <- function(database, region, is_ctl = F){
-        library(rtracklayer)
-        library(GenomicRanges)
-        library("BSgenome.Hsapiens.UCSC.hg38")
+        # library(rtracklayer)
+        # library(GenomicRanges)
+        # library("BSgenome.Hsapiens.UCSC.hg38")
+        print(n)
         
         r_region <- reduce(region)
         r_database <- reduce(database)
@@ -343,7 +420,7 @@ for (o in 1:length(exp_nos)) {
                         r_database[subjectHits(hits)], seq_no)
         names(results) <- c("hit_count", "region_hits", "database_hits",
                             "total_annot_ranges")
-        
+        n <<- n+1
         return(results)
       }
       
@@ -352,35 +429,37 @@ for (o in 1:length(exp_nos)) {
         if (j==1) {
           
           print(j)
+          n=1
           rp_peak_data <- list(lapply(rp_annot, count_repeat_peaks, 
                                          peak_gr[[j]]))
           names(rp_peak_data)[j] <- names(peak_gr)[j]
-          # ctl_peak_data <- list(lapply(ctls, count_repeat_peaks, peak_gr[[j]], 
-          #                              is_ctl = T))
-          # names(ctl_peak_data)[j] <- names(peak_gr)[j]
+          n=1
+          ctl_peak_data <- list(lapply(ctls, count_repeat_peaks, peak_gr[[j]], 
+                                        is_ctl = T))
+          names(ctl_peak_data)[j] <- names(peak_gr)[j]
           
         } else {
           
           print(j)  
           rp_peak_data[[j]] <- lapply(rp_annot, count_repeat_peaks, peak_gr[[j]])
           names(rp_peak_data)[j] <- names(peak_gr)[j]
-          # ctl_peak_data[[j]] <- lapply(ctls, count_repeat_peaks, peak_gr[[j]], 
-          #                              is_ctl = T)
-          # names(ctl_peak_data)[j] <- names(peak_gr)[j]
+          ctl_peak_data[[j]] <- lapply(ctls, count_repeat_peaks, peak_gr[[j]], 
+                                        is_ctl = T)
+          names(ctl_peak_data)[j] <- names(peak_gr)[j]
           
         }
       }
-      
+      print("Saving control and repeat peak data")
       saveRDS(rp_peak_data, file = paste0(RobjectDir, 
-        "/repeats_peak_overlap_data_", subset, "_", pos, "_", exp_nos[o], "bp.rds"))
+        "/repeats_peak_overlap_data_", Subset, "_", Posit, "_", exp_nos[o], "bp.rds"))
       saveRDS(ctl_peak_data, file = paste0(RobjectDir, 
-        "/ctl_peak_overlap_data_", subset, "_", pos, "_", exp_nos[o], "bp.rds"))
+        "/ctl_peak_overlap_data_", Subset, "_", Posit, "_", exp_nos[o], "bp.rds"))
       
     } else {
       rp_peak_data <- readRDS(file = paste0(RobjectDir, 
-        "/repeats_peak_overlap_data_", subset, "_", pos, "_", exp_nos[o], "bp.rds"))
+        "/repeats_peak_overlap_data_", Subset, "_", Posit, "_", exp_nos[o], "bp.rds"))
       ctl_peak_data <- readRDS(file = paste0(RobjectDir, 
-        "/ctl_peak_overlap_data_", subset, "_", pos, "_", exp_nos[o], "bp.rds"))
+        "/ctl_peak_overlap_data_", Subset, "_", Posit, "_", exp_nos[o], "bp.rds"))
     }
     
     
@@ -423,10 +502,6 @@ for (o in 1:length(exp_nos)) {
     plot_df$id <- rownames(plot_df)
     colnames(plot_df) <- c(ids[1], ids[2], "group", "id")
     
-    m_df <- melt(plot_df)
-    colnames(m_df) <- c("group", "id", "mark", "count")
-    saveRDS(m_df, file=paste0(RobjectDir, "/", pos, "_", exp_nos[o], "_m_df.rds"))
-    
     # fetch DE repeats from RNA-seq with FDR < 0.1 and 0.3
     RNA_DE_0.1 <- read.table(file = paste0(DE_dir, "/sig_reps_FDR_0.1.txt"))
     RNA_DE_0.05 <- read.table(file = paste0(DE_dir, "/sig_reps_FDR_0.05.txt"))
@@ -438,26 +513,79 @@ for (o in 1:length(exp_nos)) {
     names(DE_list) <- c("up_0.1", "up_0.05", "down_0.1", "down_0.05")
     
     # adjust groups column to add control and repeat type information:
-    m_df$group[m_df$id %in% pos_ctl] <- "CPM_positive_control"
-    m_df$group[m_df$id %in% neg_ctl] <- "CPM_negative_control"
-    m_df$group[m_df$id %in% H3K27me3_ctl] <- "H3K27me3_control"
-    m_df$group[m_df$id %in% H3K4me3_ctl] <- "H3K4me3_control"
-    m_df$group[m_df$id %in% DE_list$up_0.1] <- "up_repeat_FDR<0.1"
-    #m_df$group[m_df$id %in% DE_list$up_0.05] <- "up_repeat_FDR<0.05"
-    m_df$group[m_df$id %in% DE_list$down_0.1] <- "down_repeat_FDR<0.1"
-    #m_df$group[m_df$id %in% DE_list$down_0.05] <- "down_repeat_FDR<0.05"
-    m_df$group[m_df$group == "repeat"] <- "non_DE_repeat"
-    m_df$group <- factor(m_df$group, levels = c("CPM_negative_control", 
+    plot_df$group[plot_df$id %in% pos_ctl] <- "CPM_positive_control"
+    plot_df$group[plot_df$id %in% neg_ctl] <- "CPM_negative_control"
+    plot_df$group[plot_df$id %in% H3K27me3_ctl] <- "H3K27me3_control"
+    plot_df$group[plot_df$id %in% H3K4me3_ctl] <- "H3K4me3_control"
+    plot_df$group[plot_df$id %in% DE_list$up_0.1] <- "up_repeat_FDR<0.1"
+    #plot_df$group[plot_df$id %in% DE_list$up_0.05] <- "up_repeat_FDR<0.05"
+    plot_df$group[plot_df$id %in% DE_list$down_0.1] <- "down_repeat_FDR<0.1"
+    #plot_df$group[plot_df$id %in% DE_list$down_0.05] <- "down_repeat_FDR<0.05"
+    plot_df$group[plot_df$group == "repeat"] <- "non_DE_repeat"
+    plot_df$group <- factor(plot_df$group, levels = c("CPM_negative_control", 
                                                 "CPM_positive_control", "H3K27me3_control", "H3K4me3_control",
                                                 "down_repeat_FDR<0.1", "down_repeat_FDR<0.05", "up_repeat_FDR<0.1", 
                                                 "up_repeat_FDR<0.05", "non_DE_repeat"))
+    
+    # # do stats between different groups:
+    # CPMR_ctl <- plot_df[grep("CPM", plot_df$group),]
+    # hist(CPMR_ctl$HGSOC_H3K27me3)
+    # hist(CPMR_ctl$HGSOC_H3K4me3)
+    # 
+    # CPMR_ctl_K27_tbl <- table(CPMR_ctl$HGSOC_H3K27me3, as.character(CPMR_ctl$group))
+    # CPMR_ctl_K27_pval <- chisq.test(CPMR_ctl_K27_tbl)
+    # 
+    # CPMR_ctl_K4_tbl <- table(CPMR_ctl$HGSOC_H3K4me3, as.character(CPMR_ctl$group))
+    # CPMR_ctl_K4_pval <- chisq.test(CPMR_ctl_K4_tbl)
+    # 
+    # paper_ctl <- plot_df[grep("H3", plot_df$group),]
+    # hist(paper_ctl$HGSOC_H3K27me3)
+    # hist(paper_ctl$HGSOC_H3K4me3)
+    # 
+    # paper_ctl_K27_tbl <- table(paper_ctl$HGSOC_H3K27me3, as.character(paper_ctl$group))
+    # paper_ctl_K27_pval <- chisq.test(paper_ctl_K27_tbl)
+    # 
+    # paper_ctl_K4_tbl <- table(paper_ctl$HGSOC_H3K4me3, as.character(paper_ctl$group))
+    # paper_ctl_K4_pval <- chisq.test(paper_ctl_K4_tbl)
+    # 
+    # repeat_df <- plot_df[grep("repeat", plot_df$group),]
+    # hist(repeat_df$HGSOC_H3K27me3)
+    # hist(repeat_df$HGSOC_H3K4me3)
+    # 
+    # paper_ctl_K27_pval1 <- 
+    #   wilcox.test(repeat_df$HGSOC_H3K27me3[repeat_df$group == "down_repeat_FDR<0.1"],
+    #   repeat_df$HGSOC_H3K27me3[repeat_df$group == "up_repeat_FDR<0.1"])
+    # paper_ctl_K27_pval2 <- 
+    #   wilcox.test(repeat_df$HGSOC_H3K27me3[repeat_df$group == "non_DE_repeat"],
+    #               repeat_df$HGSOC_H3K27me3[repeat_df$group == "down_repeat_FDR<0.1"])
+    # paper_ctl_K27_pval3 <- 
+    #   wilcox.test(repeat_df$HGSOC_H3K27me3[repeat_df$group == "non_DE_repeat"],
+    #               repeat_df$HGSOC_H3K27me3[repeat_df$group == "up_repeat_FDR<0.1"])
+    # 
+    # paper_ctl_K4_pval1 <- 
+    #   wilcox.test(repeat_df$HGSOC_H3K4me3[repeat_df$group == "down_repeat_FDR<0.1"],
+    #               repeat_df$HGSOC_H3K4me3[repeat_df$group == "up_repeat_FDR<0.1"])
+    # paper_ctl_K4_pval2 <- 
+    #   wilcox.test(repeat_df$HGSOC_H3K4me3[repeat_df$group == "down_repeat_FDR<0.1"],
+    #               repeat_df$HGSOC_H3K4me3[repeat_df$group == "up_repeat_FDR<0.1"])
+    # paper_ctl_K4_pval3 <- 
+    #   wilcox.test(repeat_df$HGSOC_H3K4me3[repeat_df$group == "down_repeat_FDR<0.1"],
+    #               repeat_df$HGSOC_H3K4me3[repeat_df$group == "up_repeat_FDR<0.1"])
+    
+    
+    
+    m_df <- melt(plot_df)
+    colnames(m_df) <- c("group", "id", "mark", "count")
+    saveRDS(m_df, file=paste0(RobjectDir, "/", Posit, "_", exp_nos[o], "_m_df.rds"))
+    
+    
     
     # calculate stats:
     data_summary <- function(data, varname, groupnames){
       require(plyr)
       summary_func <- function(x, col){
         c(mean = mean(x[[col]], na.rm=TRUE),
-          sd = sd(x[[col]], na.rm=TRUE))
+          se = ( sd(x[[col]], na.rm=TRUE)) )/( sqrt(length(x[[col]])) )
       }
       data_sum<-ddply(data, groupnames, .fun=summary_func,
                       varname)
@@ -470,17 +598,18 @@ for (o in 1:length(exp_nos)) {
     # plot on barplot:
     p <- ggplot(peak_stats, aes(x=group, y=count, fill=mark))
     p <- p + geom_bar(stat = "identity", position=position_dodge(0.9))
-    p <- p + geom_errorbar(aes(ymin=count-sd, ymax=count+sd), width=0.2,
+    p <- p + geom_errorbar(aes(ymin=count-se, ymax=count+se), width=0.2,
                            position=position_dodge(0.9))
     p <- p + theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.6))
     p <- p + ylab("Histone marks per sequence")
-    pdf(paste0(plotDir, "/peak_no_per_seq_", exp_nos[o], "bp_", pos, "_barplot.pdf"))
-    p
+    pdf(paste0(plotDir, "/peak_no_per_seq_500bp_upstream_se.pdf"))
+    print(p)
     dev.off()
     
-    return(list(p, plot_df))
+    return(plot_df)
   })
-  saveRDS(paste0(RobjectDir, "/", exp_nos[o], "bp_peak_no_per_seq_data.rds"))
+  names(res) <- c("upstream")
+  saveRDS(res, paste0(RobjectDir, "/", exp_nos[o], "bp_peak_no_per_seq_plot_df.rds"))
 }
 
 
