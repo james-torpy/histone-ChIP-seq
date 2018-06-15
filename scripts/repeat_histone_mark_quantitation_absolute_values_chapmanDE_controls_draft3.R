@@ -61,6 +61,8 @@ pos_chapman_ctl <- as.character(read.table(file=paste0(ref_dir,
                                                        "/chapman-roethe_top_DE_RNA_symbols_ids.txt"))[,1])
 neg_chapman_ctl <- as.character(read.table(file=paste0(ref_dir, 
                                                         "/chapman-roethe_bottom_DE_RNA_symbols_ids.txt"))[,1])
+neg_chapman_ctl2 <- as.character(read.table(file=paste0(ref_dir, 
+                                                        "/chapman-roethe_non-DE_RNA_symbols_ids.txt"))[,1])
 
 
 # set up parallel workers:
@@ -129,6 +131,8 @@ for (o in 1:length(exp_nos)) {
                                                            "/chapman-roethe_top_DE_RNA_symbols_ids.txt"))[,1])
     neg_chapman_ctl <- as.character(read.table(file=paste0(ref_dir, 
                                                             "/chapman-roethe_bottom_DE_RNA_symbols_ids.txt"))[,1])
+    neg_chapman_ctl2 <- as.character(read.table(file=paste0(ref_dir, 
+                                                            "/chapman-roethe_non-DE_RNA_symbols_ids.txt"))[,1])
     
     
     ##########################################################################
@@ -381,40 +385,6 @@ for (o in 1:length(exp_nos)) {
                              Subset, "_", exp_nos[o], "_bp_", descrip, ".rds"))
     }
     
-    if ( !file.exists(paste0(RobjectDir, "/all_gc_", Posit, "_", 
-                             Subset, "_", exp_nos[o], "_bp_", descrip, ".rds")) ) {
-      
-      print("Creating expanded gencode annotation...")
-      if ( !exists("gc") ) {
-        # load gencode annotation:
-        gc <- import(paste0(refDir, "gencode_ercc.v19.annotation.gtf"))
-      }
-      
-      # format gc:
-      values(gc) <- subset(values(gc), select=gene_name)
-      colnames(values(gc)) <- "ID"
-      
-      # split annot into GRangesLists by IDs/names:
-      gc <- split(gc, gc$ID)
-      
-      # extract regions of interest from ranges:
-      gc <- lapply(gc, exp_annot, Length = exp_nos[o], 
-                     Posit = Posit, is_ctl = T)
-      
-      # remove NULL values:
-      if ( any(unlist(lapply(gc, is.null))) ) {
-        gc <- gc[-which(unlist(lapply(gc, is.null)))]
-      }
-      
-      saveRDS(gc, paste0(RobjectDir, "/all_gc_", Posit, "_", 
-                           Subset, "_", exp_nos[o], "_bp_", descrip, ".rds"))
-      
-    } else {
-      print("Loading expanded gencode annotation...")
-      gc <- readRDS(paste0(RobjectDir, "/all_gc_", Posit, "_", 
-                           Subset, "_", exp_nos[o], "_bp_", descrip, ".rds"))
-    }
-    
     save.image(file = paste0(RobjectDir, "/annot_expanded_", Subset, 
                              "_", exp_nos[o], "_bp_", descrip, ".rds"))
     
@@ -656,7 +626,7 @@ for (o in 1:length(exp_nos)) {
     m_df$count[m_df$id == "RAB11A"] <- 1
     m_df$count[m_df$id == "SLC6A15"] <- 1
     
-    p <- ggplot(m_df, aes(x=group, y=count))
+    p <- ggplot(m_df, aes(x=group, y=count, fill=group))
     p <- p + geom_violin()
     p <- p + theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.6))
     p <- p + ylab("Absolute histone marks")
