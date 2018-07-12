@@ -109,11 +109,16 @@ for (o in 1:length(exp_nos)) {
     system(paste0("mkdir -p ", RobjectDir))
     system(paste0("mkdir -p ", RobjectDir))
     
-    pos_chapman_ctl <- as.character(read.table(file=paste0(ref_dir, 
-                                                           "/chapman-roethe_top_DE_RNA_symbols_ids.txt"))[,1])
-    neg_chapman_ctl <- as.character(read.table(file=paste0(ref_dir, 
-                                                            "/chapman-roethe_bottom_DE_RNA_symbols_ids.txt"))[,1])
+    pos_chapman_ctl <- read.table(file=paste0(ref_dir, "/chapman-roethe_up_DE_RNA_symbols_ids.txt"))
     
+    pos_chapman_ctl <- as.character(read.table(file=paste0(ref_dir, 
+                                                           "/chapman-roethe_up_DE_RNA_symbols_ids.txt"))$Gene.symbol)
+    neg_chapman_ctl <- as.character(read.table(file=paste0(ref_dir, 
+                                                            "/chapman-roethe_down_DE_RNA_symbols_ids.txt"))$Gene.symbol)
+    # clean up controls:
+    pos_chapman_ctl <- gsub("\\/.*", "", pos_chapman_ctl)[pos_chapman_ctl != ""]
+    neg_chapman_ctl <- gsub("\\/.*", "", neg_chapman_ctl)[neg_chapman_ctl != ""]
+
     
     ##########################################################################
     ### 1. Load in ChIP reads files ###
@@ -176,67 +181,65 @@ for (o in 1:length(exp_nos)) {
     # ranges of annotation:
     exp_annot <- function(annot, Length) {
   
-	  print(n)
+	    #print(n)
 	
-  	  library(rtracklayer)
-  	  library(GenomicRanges)
-  	  library("BSgenome.Hsapiens.UCSC.hg38")
-  	
-  	  # define lengths of chromosomes:
-  	  seq_lengths <- seqlengths(Hsapiens)[!grepl("_",names(seqlengths(Hsapiens)))]
-  	  
-  	  # remove unwanted chromosome constructs:
-  	  annot <- annot[grep("[0-9].[0-9]|MT|G|K", seqnames(annot), invert = T)]
-  	  
-  	  if ( length(annot) > 0 ) {
-  	    # reduce ranges:
-  	    annot <- reduce(annot)
-  	    
-  	    ranges(annot) <- IRanges(start=min(start(annot)), end=max(end(annot)))
-  	    annot <- unique(annot)
-  	        
-  	    # assign length of all chromosomes to the variable name 'seq_lengths':
-  	    annot$seq_lengths <- rep(NA, length(annot))
-  	    
-  	    for ( v in names(seq_lengths) ) {
-  	      annot$seq_lengths[as.character(seqnames(annot)) == v] <- seq_lengths[v]
-  	    }
-  	      
-  	    # add length upstream of each range to another gr:
-  	    start_annot <- annot
-  	    # make end position equal to original start position:
-  	    end(ranges(start_annot)) <- start(ranges(start_annot))
-  	    # make start position the original start position - Length if the original start is at least Length
-  	    # away from start of chromosome:
-  	    start(start_annot)[start(ranges(start_annot)) >= Length] <- 
-  	      start(ranges(start_annot))[start(ranges(start_annot)) >= Length] - Length
-  	
-  	    # add length downstream of each range to another gr:
-  	    end_annot <- annot
-  	    
-  	    # make start position equal to original end position:
-  	    start(ranges(end_annot)) <- end(ranges(end_annot))
-  	    # make end position the original end position + Length if the end is at least Length
-  	    # away from end of chromosome:
-  	    far_enuff <- end(ranges(end_annot)) <= (end_annot$seq_lengths - Length)
-  	    end(ranges(end_annot))[far_enuff] <- end(ranges(end_annot))[far_enuff] + Length
-  	    
-  	    
-  	
-  	    # make end position the end of the chromosome if the original end is not at least Length
-  	    # away from end of chromosome:
-  	    not_far_enuff <- end(ranges(end_annot)) > (end_annot$seq_lengths - Length)
-  	
-  	    if ( not_far_enuff ) {
-  	    	n <<- n+1
-  	    	return(NULL)
-  	    } else {
-  	    	# return combined start and end annotations:
-  	    	n <<- n+1
-  	    	return(c(start_annot, end_annot))
-  	    }
-  	  }
+	    library(rtracklayer)
+	    library(GenomicRanges)
+	    library("BSgenome.Hsapiens.UCSC.hg38")
+	
+	    # define lengths of chromosomes:
+	    seq_lengths <- seqlengths(Hsapiens)[!grepl("_",names(seqlengths(Hsapiens)))]
+	  
+	    # remove unwanted chromosome constructs:
+	    annot <- annot[grep("[0-9].[0-9]|MT|G|K", seqnames(annot), invert = T)]
+	  
+	    if ( length(annot) > 0 ) {
+	      # reduce ranges:
+	      annot <- reduce(annot)
+	    
+	    ranges(annot) <- IRanges(start=min(start(annot)), end=max(end(annot)))
+	    annot <- unique(annot)
+	        
+	    # assign length of all chromosomes to the variable name 'seq_lengths':
+	    annot$seq_lengths <- rep(NA, length(annot))
+	    
+	    for ( v in names(seq_lengths) ) {
+	      annot$seq_lengths[as.character(seqnames(annot)) == v] <- seq_lengths[v]
+	    }
+	      
+	    # add length upstream of each range to another gr:
+	    start_annot <- annot
+	    # make end position equal to original start position:
+	    end(ranges(start_annot)) <- start(ranges(start_annot))
+	    # make start position the original start position - Length if the original start is at least Length
+	    # away from start of chromosome:
+	    start(start_annot)[start(ranges(start_annot)) >= Length] <- 
+	      start(ranges(start_annot))[start(ranges(start_annot)) >= Length] - Length
+	
+	    # add length downstream of each range to another gr:
+	    end_annot <- annot
+	    
+	    # make start position equal to original end position:
+	    start(ranges(end_annot)) <- end(ranges(end_annot))
+	    # make end position the original end position + Length if the end is at least Length
+	    # away from end of chromosome:
+	    far_enuff <- end(ranges(end_annot)) <= (end_annot$seq_lengths - Length)
+	    end(ranges(end_annot))[far_enuff] <- end(ranges(end_annot))[far_enuff] + Length
+	    
+	    # make end position the end of the chromosome if the original end is not at least Length
+	    # away from end of chromosome:
+	    not_far_enuff <- end(ranges(end_annot)) > (end_annot$seq_lengths - Length)
+	
+	    if ( not_far_enuff ) {
+	    	#n <<- n+1
+	    	return(NULL)
+	    } else {
+	    	# return combined start and end annotations:
+	    	#n <<- n+1
+	    	return(c(start_annot, end_annot))
+	    }
 	  }
+	}
     
     if ( !file.exists(paste0(RobjectDir, "/rp_", Posit, 
                              "_", as.character(exp_nos[o]), "bp.rds")) ) {
@@ -296,8 +299,7 @@ for (o in 1:length(exp_nos)) {
       gc <- import(paste0(refDir, "gencode_ercc.v19.annotation.gtf"))
       
       # isolate control ranges from gc:
-      ctls <- gc[gc$gene_name %in% pos_chapman_ctl|gc$gene_name %in% neg_chapman_ctl|
-                   gc$gene_name %in% neg_chapman_ctl2]
+      ctls <- gc[gc$gene_name %in% pos_chapman_ctl|gc$gene_name %in% neg_chapman_ctl]
       values(ctls) <- subset(values(ctls), select=gene_name)
       colnames(values(ctls)) <- "ID"
       
@@ -305,8 +307,7 @@ for (o in 1:length(exp_nos)) {
       ctls <- split(ctls, ctls$ID)
       
       # extract regions of interest from ranges:
-      ctls <- lapply(ctls, exp_annot, Length = exp_nos[o], 
-                     Posit = Posit, is_ctl = T)
+      ctls <- parLapply(cl,ctls, exp_annot, Length = exp_nos[o])
       
       # remove NULL values:
       if ( any(unlist(lapply(ctls, is.null))) ) {
@@ -324,7 +325,7 @@ for (o in 1:length(exp_nos)) {
     
 
     if ( !file.exists(paste0(RobjectDir, 
-		"/all_gc_upstream_500_bp_absolute_values_chapmanDE_ctls.rds")) ) {
+		"/all_gc_upstream_500_bp_chapmanDE_ctls.rds")) ) {
       
       print("Creating expanded gencode annotation...")
       if ( !exists("gc") ) {
@@ -332,48 +333,50 @@ for (o in 1:length(exp_nos)) {
         gc <- import(paste0(refDir, "gencode_ercc.v19.annotation.gtf"))
       }
       
-    # format gc:
-    pc <- gc[!is.na(gc$gene_type == "protein_coding")]
-    pc <- pc[pc$gene_type == "protein_coding" & pc$type == "exon"]
-
-	  values(pc) <- subset(values(pc), select=gene_name)
-	  colnames(values(pc)) <- "ID"
-	  
-	  # split annot into GRangesLists by IDs/names:
-	  pc <- split(pc, pc$ID)
-	  
-	  # remove ranges spread over more than one chromosome:
-	  pc <- lapply(pc, function(x) {
-	  	if ( length(unique(as.character(seqnames(x)))) > 1 ) {
-	  		x <- NULL
-	  	}
-	  	return(x)
-	  })
-
-    # remove NULL values:
-    if ( any(unlist(lapply(pc, is.null))) ) {
-      pc <- pc[-which(unlist(lapply(pc, is.null)))]
-    }
-
-    n=1
-	  gc_exp <- lapply(pc, exp_annot, Length = Length)
-	  
-	  # remove NULL values:
-	  if ( any(unlist(lapply(gc_exp, is.null))) ) {
-	    gc_exp <- gc_exp[-which(unlist(lapply(gc_exp, is.null)))]
-	  }
+      # isolate only protein coding genes::
+      pc <- gc[!is.na(gc$gene_type == "protein_coding")]
+      pc <- pc[pc$gene_type == "protein_coding"]
       
-      saveRDS(gc_exp, paste0(RobjectDir, 
-		"/all_gc_upstream_500_bp_absolute_values_chapmanDE_ctls.rds"))
+      # format pc:
+	    values(pc) <- subset(values(pc), select=gene_name)
+	    colnames(values(pc)) <- "ID"
+	  
+	    # split annot into GRangesLists by IDs/names:
+	    pc <- split(pc, pc$ID)
+
+	    # remove ranges spread over more than one chromosome:
+	    pc_exp <- lapply(pc, function(x) {
+	  	  if ( length(unique(as.character(seqnames(x)))) > 1 ) {
+	  	  	x <- NULL
+	  	  }
+	  	  return(x)
+	    })
+	    
+	    # remove mir entries:
+	    pc_exp <- pc_exp[grep("mir", names(pc_exp), invert=T)]
+	    
+	    # remove positive and negative control genes from pc_exp:
+	    pc_exp <- pc_exp[!(names(pc_exp) %in% pos_chapman_ctl)]
+	    
+	    n=1
+      pc_exp <- parLapply(cl, pc_exp, exp_annot, Length = Length)
+	  
+	    # remove NULL values:
+	    if ( any(unlist(lapply(pc_exp, is.null))) ) {
+	      pc_exp <- pc_exp[-which(unlist(lapply(pc_exp, is.null)))]
+	    }
+      
+      saveRDS(pc_exp, paste0(RobjectDir, 
+		    "/all_pc_upstream_500_bp_chapmanDE_ctls.rds"))
       
     } else {
       print("Loading expanded gencode annotation...")
-      gc_exp <- readRDS(paste0(RobjectDir, 
-		"/all_gc_upstream_500_bp_absolute_values_chapmanDE_ctls.rds"))
+      pc_exp <- readRDS(paste0(RobjectDir, 
+		    "/all_pc_upstream_500_bp_chapmanDE_ctls.rds"))
     }
     
     save.image(file = paste0(RobjectDir, "/annot_expanded_",
-                             exp_nos[o], "_bp_", descrip, ".rds"))
+                             exp_nos[o], "_bp_", descrip, "2.RData"))
     
     
     ##########################################################################
@@ -390,16 +393,16 @@ for (o in 1:length(exp_nos)) {
                            "bp", descrip, ".rds")) | 
       !file.exists(paste0(RobjectDir, 
                           "/ctl_peak_overlap_data_", Posit, "_", exp_nos[o], "bp", 
-                          descrip, ".rds")) ) 
+                          descrip, ".rds")) |
        !file.exists(paste0(RobjectDir, 
-                          "/ctl_peak_overlap_data_", Posit, "_", exp_nos[o], "bp", 
+                          "/pc_peak_overlap_data_", Posit, "_", exp_nos[o], "bp", 
                           descrip, ".rds")) )  {
       
       count_repeat_peaks <- function(database, region, is_ctl = F){
-        # library(rtracklayer)
-        # library(GenomicRanges)
-        # library("BSgenome.Hsapiens.UCSC.hg38")
-        print(n)
+        library(rtracklayer)
+        library(GenomicRanges)
+        library("BSgenome.Hsapiens.UCSC.hg38")
+        #print(n)
         
         r_region <- reduce(region)
         r_database <- reduce(database)
@@ -417,7 +420,7 @@ for (o in 1:length(exp_nos)) {
                         r_database[subjectHits(hits)], seq_no)
         names(results) <- c("hit_count", "region_hits", "database_hits",
                             "total_annot_ranges")
-        n <<- n+1
+        # n <<- n+1
         return(results)
       }
       
@@ -436,15 +439,15 @@ for (o in 1:length(exp_nos)) {
           #                             peak_gr[[j]]))
           # names(ctl_rp_peak_data)[j] <- names(peak_gr)[j]
           
-#          n=1
-#          ctl_peak_data <- list(lapply(ctls, count_repeat_peaks, peak_gr[[j]], 
-#                                       is_ctl = T))
-#          names(ctl_peak_data)[j] <- names(peak_gr)[j]
-
           n=1
-          gc_peak_data <- list(lapply(gc_exp, count_repeat_peaks, peak_gr[[j]], 
+          ctl_peak_data <- list(parLapply(cl, ctls, count_repeat_peaks, peak_gr[[j]],
                                        is_ctl = T))
-          names(gc_peak_data)[j] <- names(peak_gr)[j]
+          names(ctl_peak_data)[j] <- names(peak_gr)[j]
+
+          # n=1
+          pc_peak_data <- list(parLapply(cl, pc_exp, count_repeat_peaks, peak_gr[[j]], 
+                                       is_ctl = T))
+          names(pc_peak_data)[j] <- names(peak_gr)[j]
           
         } else {
           
@@ -455,13 +458,13 @@ for (o in 1:length(exp_nos)) {
           # ctl_rp_peak_data[[j]] <- lapply(ctl_reps, count_repeat_peaks, peak_gr[[j]])
           # names(ctl_rp_peak_data)[j] <- names(peak_gr)[j]
           
-#          ctl_peak_data[[j]] <- lapply(ctls, count_repeat_peaks, peak_gr[[j]], 
-#                                       is_ctl = T)
-#          names(ctl_peak_data)[j] <- names(peak_gr)[j]
+          ctl_peak_data[[j]] <- lapply(ctls, count_repeat_peaks, peak_gr[[j]],
+                                      is_ctl = T)
+          names(ctl_peak_data)[j] <- names(peak_gr)[j]
 
-          gc_peak_data[[j]] <- lapply(gc_exp, count_repeat_peaks, peak_gr[[j]], 
+          pc_peak_data[[j]] <- parLapply(cl, pc_exp, count_repeat_peaks, peak_gr[[j]], 
                                        is_ctl = T)
-          names(gc_peak_data)[j] <- names(peak_gr)[j]
+          names(pc_peak_data)[j] <- names(peak_gr)[j]
           
         }
       }
@@ -472,11 +475,14 @@ for (o in 1:length(exp_nos)) {
       # saveRDS(ctl_rp_peak_data, file = paste0(RobjectDir,
       #    "/ctl_repeats_peak_overlap_data_", Posit, "_", exp_nos[o], "bp", descrip, ".rds"))
       # 
-#      saveRDS(ctl_peak_data, file = paste0(RobjectDir, 
-#      	"/ctl_peak_overlap_data_", Posit, "_", exp_nos[o], "bp", descrip, ".rds"))
+     saveRDS(ctl_peak_data, file = paste0(RobjectDir,
+     	"/ctl_peak_overlap_data_", Posit, "_", exp_nos[o], "bp", descrip, ".rds"))
 
-      saveRDS(gc_peak_data, file = paste0(RobjectDir, 
-      	"/gc_peak_overlap_data_", Posit, "_", exp_nos[o], "bp", descrip, ".rds"))
+      saveRDS(pc_peak_data, file = paste0(RobjectDir, 
+      	"/pc_peak_overlap_data_", Posit, "_", exp_nos[o], "bp", descrip, "no_pos.rds"))
+      
+      save.image(file = paste0(RobjectDir, "/peaks_counted_",
+                               exp_nos[o], "_bp_", descrip, ".rds"))
       
     } else {
       
@@ -486,14 +492,134 @@ for (o in 1:length(exp_nos)) {
       # ctl_rp_peak_data <- readRDS(file = paste0(RobjectDir,
       #    "/ctl_repeats_peak_overlap_data_", Posit, "_", exp_nos[o], "bp", descrip, ".rds"))
       # 
-      #ctl_peak_data <- readRDS(file = paste0(RobjectDir, 
-      #  "/ctl_peak_overlap_data_", Posit, "_", exp_nos[o], "bp", descrip, ".rds"))
+      ctl_peak_data <- readRDS(file = paste0(RobjectDir,
+       "/ctl_peak_overlap_data_", Posit, "_", exp_nos[o], "bp", descrip, ".rds"))
 
-      gc_peak_data <- readRDS(file = paste0(RobjectDir, 
-        "/gc_peak_overlap_data_", Posit, "_", exp_nos[o], "bp", descrip, ".rds"))
+      pc_peak_data <- readRDS(file = paste0(RobjectDir, 
+        "/pc_peak_overlap_data_", Posit, "_", exp_nos[o], "bp", descrip, ".rds"))
       
     }
     
+  
+  
+  ########################################################################
+  ### 4. Determine whether groups are enriched or depleted for marks
+  # compared with all protein coding genes ###
+  ########################################################################
+  
+  # create function to change peak counts above 1 to 1:
+  fix_peaks <- function(y) {
+    cnts <- y$hit_count
+    res <- lapply(cnts, function(z) {
+      if ( z > 1 ) {
+        z <- 1
+      }
+      return(z)
+    })
+    return(res)
+  }
+  
+  # convert peak numbers into total counts per group:
+  ctl_nos <- lapply(ctl_peak_data, function(x) {
+    pos <- x[names(x) %in% pos_chapman_ctl]
+    pos <- lapply(pos, fix_peaks)
+    pos_peak_sum <- sum(unlist(pos))
+    pos_gene_sum <- length(pos)
+    
+    neg <- x[names(x) %in% neg_chapman_ctl]
+    neg <- lapply(neg, fix_peaks)
+    neg_peak_sum <- sum(unlist(neg))
+    neg_gene_sum <- length(neg)
+    
+    res <- list(pos_peak_sum, pos_gene_sum, neg_peak_sum, neg_gene_sum)
+    names(res) <- c("peak_sum", "gene_sum", "peak_sum", 
+                    "gene_sum")
+    return(res)
+  })
+  
+  pos_nos <- lapply(ctl_nos, function(x) x[1:2])
+  neg_nos <- lapply(ctl_nos, function(x) x[3:4])
+  
+    
+  # check peak numbers in pc_peak_summary:
+  pc_peak_summary <- lapply(pc_peak_data, function(x) {
+    return(table(unlist(lapply(x, function(y) y$hit_count))))
+  })
+  
+  pc_nos <- lapply(pc_peak_data, function(x) {
+    x <- lapply(x, fix_peaks)
+    pc_peak_sum <- sum(unlist(x))
+    pc_gene_sum <- length(x)
+    
+    res <- list(pc_peak_sum, pc_gene_sum)
+    names(res) <- c("pc_peak_sum", "pc_gene_sum")
+    return(res)
+  })
+  
+  # create function to calculate odds of group genes are enriched for 
+  # marks compared with all protein-coding genes
+  oddsRatio <- function(all, genes){
+    library(rtracklayer)
+    library(GenomicRanges)
+    
+    # calculate odds of selected genes containing a histone mark:
+    first_ratio <- genes$peak_sum/genes$gene_sum
+    
+    # calculate odds of all genes containing a histone mark:
+    second_ratio <- all$pc_peak_sum/all$pc_gene_sum
+    
+    # calculate odds ratio:
+    odds <- first_ratio/second_ratio
+    
+    # calculate standard error for odds:
+    se <- sqrt(1/genes$gene_sum + 1/genes$peak_sum + 1/all$pc_gene_sum + 
+                 1/all$pc_peak_sum)
+    print("Odds are:")
+    cat(odds)
+    cat("\n")
+    print("Std error is:")
+    cat(se)
+    cat("\n")
+    
+    # calculate p-value for odds:
+    database_enrichment <-
+      matrix( c(as.numeric(genes$peak_sum), as.numeric(all$pc_peak_sum), 
+                as.numeric(genes$gene_sum), as.numeric(all$pc_gene_sum)), nrow = 2,
+              ncol = 2 )
+    colnames(database_enrichment) = c("peaks", "non-peaks")
+    rownames(database_enrichment) = c("genes", "all")
+    
+    pval <- chisq.test(database_enrichment)$p.value
+    print("P-value is:")
+    cat(pval)
+    cat("\n")
+    
+    result <- data.frame(odds, se, pval)
+    colnames(result) <- c("odds", "std_error", "pval")
+    
+    return(result)
+  }
+  
+  n=1
+  neg_odds <- lapply(neg_nos, function(x) {
+    res <- oddsRatio(pc_nos[[n]], x)
+    n <<- n+1
+    return(res)
+  })
+  
+  n=1
+  pos_odds <- lapply(pos_nos, function(x) {
+    res <- oddsRatio(pc_nos[[n]], x)
+    n <<- n+1
+    return(res)
+  })
+    
+  
+  
+  
+  
+  
+  
     
     ########################################################################
     ### 3. Plot counts of peak enrichment in repeat regions #
@@ -532,11 +658,23 @@ for (o in 1:length(exp_nos)) {
     ctl_df$group <- "control"
     ctl_df$HGSOC_H3K27me3_SRR600559.count[ctl_df$HGSOC_H3K27me3_SRR600559.count > 1] <- 1
     ctl_df$HGSOC_H3K4me3_SRR600956.count[ctl_df$HGSOC_H3K4me3_SRR600956.count > 1] <- 1
-    gc_df <- format_counts(gc_peak_data)
-    gc_df$group <- "gc"
-    gc_df$HGSOC_H3K27me3_SRR600559.count[gc_df$HGSOC_H3K27me3_SRR600559.count > 1] <- 1
-    gc_df$HGSOC_H3K4me3_SRR600956.count[gc_df$HGSOC_H3K4me3_SRR600956.count > 1] <- 1
+    pc_df <- format_counts(pc_peak_data)
+    pc_df$group <- "pc"
+    pc_df$HGSOC_H3K27me3_SRR600559.count[pc_df$HGSOC_H3K27me3_SRR600559.count > 1] <- 1
+    pc_df$HGSOC_H3K4me3_SRR600956.count[pc_df$HGSOC_H3K4me3_SRR600956.count > 1] <- 1
+    
+    
+    
+    
+    
+    
+    
+    
+    
     plot_df <- rbind(ctl_df, gc_df)
+    
+    # remove weird/mir/orf entries:
+    plot_df <- plot_df[grep("AC[0-9]|AP0|BX[0-9]|orf|ORF|mir", rownames(plot_df), invert=T),]
     # plot_df <- rbind(ctl_df, ctl_rp_df)
     # plot_df <- rbind(plot_df, rp_df)
     in_files <- list.files(inDir, pattern = ".bed", full.names = T, 
@@ -575,11 +713,11 @@ for (o in 1:length(exp_nos)) {
     
     m_df <- melt(plot_df)
     colnames(m_df) <- c("group", "id", "mark", "count")
-    saveRDS(m_df, file=paste0(RobjectDir, "/", Posit, "_", exp_nos[o], "_m_df_with_gc.rds"))
+    saveRDS(m_df, file=paste0(RobjectDir, "/", Posit, "_", exp_nos[o], "_m_df_ctls_and_gc_only.rds"))
     
     ######
     m_df <- m_df[m_df$mark == "HGSOC_H3K4me3",]
-    m_df <- m_df[m_df$group != "control"]
+    m_df <- m_df[m_df$group != "control",]
     
     p <- ggplot(m_df, aes(x=group, y=count))
     p <- p + geom_violin()

@@ -23,7 +23,8 @@ sampleName <- "chapman-rothe_2013_hg19"
 descrip <- paste0("absolute_values_chapmanDE_ctls")
 # specify regions to include for marks (body, upstream, up_and_downstream)
 exp_nos <- c(500)
-posits <- "up_and_downstream"
+Posit <- "up_and_downstream"
+o=1
 
 # define directories:
 homeDir <- "/Users/jamestorpy/clusterHome/"
@@ -176,17 +177,17 @@ if ( !file.exists(paste0(RobjectDir,
  
   # remove ranges spread over more than one chromosome:
   gc_exp <- lapply(gc, function(x) {
-  	if ( length(seqnames(x)) > 1 ) {
+  	if ( length(unique(seqnames(x))) > 1 ) {
   		x <- NULL
   	}
   	return(x)
   })
 
-    # remove NULL values:
+  # remove NULL values:
   if ( any(unlist(lapply(gc_exp, is.null))) ) {
     gc_exp <- gc_exp[-which(unlist(lapply(gc_exp, is.null)))]
   }
-  
+
   gc_exp <- lapply(gc_exp, exp_annot, Length = Length)
   
   # remove NULL values:
