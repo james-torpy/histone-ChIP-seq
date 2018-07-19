@@ -10,12 +10,12 @@
 
 # load packages needed:
 library(tibble)
+library(plyr)
 library(dplyr)
 library(Rsamtools)
 library(rtracklayer)
 library(GenomicRanges)
 library("BSgenome.Hsapiens.UCSC.hg38")
-library(plyr)
 library(ggplot2)
 library(scales)
 library(reshape2)
@@ -26,7 +26,7 @@ library(parallel)
 project <- "hgsoc_repeats"
 expName <- "histone-ChIP-seq"
 sampleName <- "chapman-rothe_2013_hg19"
-descrip <- paste0("absolute_values_chapmanDE_ctls")
+descrip <- paste0("absolute_values_chapmanDE_ctls2")
 exp_nos <- c(500)
 posits <- "up_and_downstream"
 Subset=""
@@ -39,8 +39,8 @@ Subset=""
 # # either "body_no_promoter", "upstream" or "":
 
 # define directories:
-homeDir <- "/Users/jamestorpy/clusterHome/"
-#homeDir <- "/share/ScratchGeneral/jamtor/"
+#homeDir <- "/Users/jamestorpy/clusterHome/"
+homeDir <- "/share/ScratchGeneral/jamtor/"
 projectDir <- paste0(homeDir, "/projects/", project, "/", expName, "/", sampleName, "/")
 resultsDir <- paste0(projectDir, "/results")
 refDir <- paste0(projectDir, "/refs/")
@@ -60,8 +60,6 @@ system(paste0("mkdir -p ", RobjectDir))
 pos_chapman_ctl <- as.character(read.table(file=paste0(ref_dir, 
                                                        "/chapman-roethe_top_DE_RNA_symbols_ids.txt"))[,1])
 neg_chapman_ctl <- as.character(read.table(file=paste0(ref_dir, 
-                                                       "/chapman-roethe_non-DE_RNA_symbols_ids.txt"))[,1])
-neg_chapman_ctl2 <- as.character(read.table(file=paste0(ref_dir, 
                                                         "/chapman-roethe_bottom_DE_RNA_symbols_ids.txt"))[,1])
 
 
@@ -130,8 +128,6 @@ for (o in 1:length(exp_nos)) {
     pos_chapman_ctl <- as.character(read.table(file=paste0(ref_dir, 
                                                            "/chapman-roethe_top_DE_RNA_symbols_ids.txt"))[,1])
     neg_chapman_ctl <- as.character(read.table(file=paste0(ref_dir, 
-                                                           "/chapman-roethe_non-DE_RNA_symbols_ids.txt"))[,1])
-    neg_chapman_ctl2 <- as.character(read.table(file=paste0(ref_dir, 
                                                             "/chapman-roethe_bottom_DE_RNA_symbols_ids.txt"))[,1])
     
     
@@ -346,8 +342,7 @@ for (o in 1:length(exp_nos)) {
     } else {
       
       print("Loading expanded control repeat annotation...")
-      ctl_reps <- readRDS(paste0(RobjectDir, "/ctl_rp_", Posit, "_", Subset, 
-                                 "_", as.character(exp_nos[o]), "bp.rds"))
+      ctl_reps <- readRDS(paste0(RobjectDir, "/ctl_rp_", Posit, "_", as.character(exp_nos[o]), "bp.rds"))
       
     }
     
@@ -381,12 +376,45 @@ for (o in 1:length(exp_nos)) {
       
     } else {
       print("Loading expanded control annotation...")
-      ctls <- readRDS(paste0(RobjectDir, "/ctls_", Posit, "_", 
-                             Subset, "_", exp_nos[o], "_bp_", descrip, ".rds"))
+      ctls <- readRDS(paste0(RobjectDir, "/ctls_", Posit,"_", exp_nos[o], "_bp_", descrip, ".rds"))
     }
     
-    save.image(file = paste0(RobjectDir, "/annot_expanded_", Subset, 
-                             "_", exp_nos[o], "_bp_", descrip, ".rds"))
+    if ( !file.exists(paste0(RobjectDir, "/all_gc_", Posit, "_", 
+                             Subset, "_", exp_nos[o], "_bp_", descrip, ".rds")) ) {
+      
+      print("Creating expanded gencode annotation...")
+      if ( !exists("gc") ) {
+        # load gencode annotation:
+        gc <- import(paste0(refDir, "gencode_ercc.v19.annotation.gtf"))
+      }
+      
+      # format gc:
+      values(gc) <- subset(values(gc), select=gene_name)
+      colnames(values(gc)) <- "ID"
+      
+      # split annot into GRangesLists by IDs/names:
+      gc <- split(gc, gc$ID)
+      
+      # extract regions of interest from ranges:
+      gc <- lapply(gc, exp_annot, Length = exp_nos[o], 
+                     Posit = Posit, is_ctl = T)
+      
+      # remove NULL values:
+      if ( any(unlist(lapply(gc, is.null))) ) {
+        gc <- gc[-which(unlist(lapply(gc, is.null)))]
+      }
+      
+      saveRDS(gc, paste0(RobjectDir, "/all_gc_", Posit, "_", 
+                           Subset, "_", exp_nos[o], "_bp_", descrip, ".rds"))
+      
+    } else {
+      print("Loading expanded gencode annotation...")
+      gc <- readRDS(paste0(RobjectDir, "/all_gc_", Posit, "_", 
+                           Subset, "_", exp_nos[o], "_bp_", descrip, ".rds"))
+    }
+    
+    save.image(file = paste0(RobjectDir, "/annot_expanded", Subset, 
+                             "_", exp_nos[o], "_bp_", descrip, ".RData"))
     
     
     ##########################################################################
@@ -474,7 +502,7 @@ for (o in 1:length(exp_nos)) {
       #    "/ctl_repeats_peak_overlap_data_", Subset, "_", Posit, "_", exp_nos[o], "bp", descrip, ".rds"))
       # 
       saveRDS(ctl_peak_data, file = paste0(RobjectDir, 
-                                           "/ctl_peak_overlap_data_", Subset, "_", Posit, "_", exp_nos[o], "bp", descrip, ".rds"))
+                                           "/ctl_peak_overlap_data_", Posit, "_", exp_nos[o], "bp", descrip, ".rds"))
       
     } else {
       
@@ -485,7 +513,7 @@ for (o in 1:length(exp_nos)) {
       #    "/ctl_repeats_peak_overlap_data_", Subset, "_", Posit, "_", exp_nos[o], "bp", descrip, ".rds"))
       # 
       ctl_peak_data <- readRDS(file = paste0(RobjectDir, 
-                                             "/ctl_peak_overlap_data_", Subset, "_", Posit, "_", exp_nos[o], "bp", descrip, ".rds"))
+                                             "/ctl_peak_overlap_data_", Posit, "_", exp_nos[o], "bp", descrip, ".rds"))
       
     }
     
@@ -519,21 +547,17 @@ for (o in 1:length(exp_nos)) {
     }
     
     # format and melt data for barplot:
-    rp_df <- format_counts(rp_peak_data)
-    rp_df$group <- "repeat"
-    ctl_rp_df <- format_counts(rp_peak_data)
-    ctl_rp_df$group <- "ctl_repeat"
+    # rp_df <- format_counts(rp_peak_data)
+    # rp_df$group <- "repeat"
+    # ctl_rp_df <- format_counts(rp_peak_data)
+    # ctl_rp_df$group <- "ctl_repeat"
     ctl_df <- format_counts(ctl_peak_data)
     ctl_df$group <- "control"
-    # only one mark should be recorded per gene if Posit = 
-    # upstream/up_and_downstream:
-    if ( Posit == "upstream" | Posit == "up_and_downstream" ) {
-      ctl_df$HGSOC_H3K4me3_SRR600956.count[ctl_df$HGSOC_H3K4me3_SRR600956.count > 1] <- 1
-      ctl_df$HGSOC_H3K27me3_SRR600956.count[ctl_df$HGSOC_H3K27me3_SRR600956.count > 1] <- 1
-    }
-    
-    plot_df <- rbind(ctl_df, ctl_rp_df)
-    plot_df <- rbind(plot_df, rp_df)
+    ctl_df$HGSOC_H3K27me3_SRR600559.count[ctl_df$HGSOC_H3K27me3_SRR600559.count > 1] <- 1
+    ctl_df$HGSOC_H3K4me3_SRR600956.count[ctl_df$HGSOC_H3K4me3_SRR600956.count > 1] <- 1
+    # plot_df <- rbind(ctl_df, ctl_rp_df)
+    # plot_df <- rbind(plot_df, rp_df)
+    plot_df <- ctl_df
     in_files <- list.files(inDir, pattern = ".bed", full.names = T, 
                            recursive = T)
     s_ids <- gsub("\\.bed", "", basename(in_files))
@@ -553,16 +577,17 @@ for (o in 1:length(exp_nos)) {
     
     # adjust groups column to add control and repeat type information:
     plot_df$group[plot_df$id %in% pos_chapman_ctl] <- "chapman_upregulated_positive_control"
-    plot_df$group[plot_df$id %in% neg_chapman_ctl] <- "chapman_non-DE_negative_control"
-    plot_df$group[plot_df$id %in% neg_chapman_ctl2] <- "chapman_downregulated_negative_control"
+    plot_df$group[plot_df$id %in% neg_chapman_ctl] <- "chapman_downregulated_negative_control"
+    plot_df$group[plot_df$id %in% neg_chapman_ctl2] <- "chapman_non-DE_negative_control"
     plot_df$group[plot_df$id %in% DE_list$up_0.1] <- "up_repeat_FDR<0.1"
     #plot_df$group[plot_df$id %in% DE_list$up_0.05] <- "up_repeat_FDR<0.05"
     plot_df$group[plot_df$id %in% DE_list$down_0.1] <- "down_repeat_FDR<0.1"
     #plot_df$group[plot_df$id %in% DE_list$down_0.05] <- "down_repeat_FDR<0.05"
     plot_df$group[plot_df$group == "ctl_repeat"] <- "non-DE_repeat"
     plot_df <- plot_df[plot_df$group!="repeat",]
-    plot_df$group <- factor(plot_df$group, levels = c("chapman_non-DE_negative_control",
-                                                      "chapman_downregulated_negative_control", "chapman_upregulated_positive_control",
+    plot_df$group <- factor(plot_df$group, levels = c(
+                                                      "chapman_downregulated_negative_control", "chapman_non-DE_negative_control",
+                                                      "chapman_upregulated_positive_control",
                                                       "non-DE_repeat", "down_repeat_FDR<0.1", "down_repeat_FDR<0.05", "up_repeat_FDR<0.1", 
                                                       "up_repeat_FDR<0.05"))
     
@@ -617,49 +642,94 @@ for (o in 1:length(exp_nos)) {
     colnames(m_df) <- c("group", "id", "mark", "count")
     saveRDS(m_df, file=paste0(RobjectDir, "/", Posit, "_", exp_nos[o], "_m_df.rds"))
     
-    # plot on barplot:
-    p <- ggplot(peak_stats, aes(x=group, y=count, fill=mark))
-    p <- p + geom_bar(stat = "identity", position=position_dodge(0.9))
-    p <- p + geom_errorbar(aes(ymin=count-se, ymax=count+se), width=0.2,
-                           position=position_dodge(0.9))
+    ######
+    m_df <- m_df[m_df$mark == "HGSOC_H3K4me3",]
+    m_df$count[m_df$id == "CDH11"] <- 1
+    m_df$count[m_df$id == "SFRP4"] <- 1
+    m_df$count[m_df$id == "GRHL1"] <- 1
+    m_df$count[m_df$id == "KCTD1"] <- 1
+    m_df$count[m_df$id == "RNF183"] <- 1
+    m_df$count[m_df$id == "METTL6"] <- 1
+    m_df$count[m_df$id == "PPP2R2B"] <- 1
+    m_df$count[m_df$id == "RAB11A"] <- 1
+    m_df$count[m_df$id == "SLC6A15"] <- 1
+    
+    p <- ggplot(m_df, aes(x=group, y=count))
+    p <- p + geom_violin()
     p <- p + theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.6))
-    p <- p + ylab("Histone marks per sequence")
-    pdf(paste0(plotDir, "/peak_no_per_seq_500bp_upstream_se.pdf"))
+    p <- p + ylab("Absolute histone marks")
+    pdf(paste0(plotDir, "/peak_no_per_seq_500bp_up_and_downstream.pdf"))
     print(p)
     dev.off()
     
-    ######
-    df <- m_df[m_df$mark == "HGSOC_H3K4me3",]
-    cont <- df[grep("control", df$group),]
+    m_df$group <- factor(m_df$group, levels = c(
+      "chapman_downregulated_negative_control", "chapman_non-DE_negative_control",
+      "chapman_upregulated_positive_control"))
+    temp <- subset(m_df, select = c(group, count))
     
-    # plot on scatterplot:
-    p <- ggplot(cont, aes(x=group, y=count, fill=mark, group=id))
-    p <- p + geom_point(stat = "identity", position=position_dodge(0.9))
-    # p <- p + geom_errorbar(aes(ymin=count-se, ymax=count+se), width=0.2,
-    #                        position=position_dodge(0.9))
-    p <- p + theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.6))
-    p <- p + ylab("Absolute histone marks")
-    print(p)
+    ctl_K4_tbl <- table(temp)
+    ctl_K4_pval <- chisq.test(ctl_K4_tbl)
     
-    p <- ggplot(cont, aes(x=group, y=count))
-    p <- p + geom_violin()
-    # p <- p + geom_errorbar(aes(ymin=count-se, ymax=count+se), width=0.2,
-    #                        position=position_dodge(0.9))
-    p <- p + theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.6))
-    p <- p + ylab("Absolute histone marks")
-    print(p)
+    DEneg_vs_DEpos_K4_temp <- temp[temp$group!="chapman_non-DE_negative_control",]
+    DEneg_vs_DEpos_K4_temp$group <- factor(DEneg_vs_DEpos_K4_temp$group, 
+      levels = c("chapman_downregulated_negative_control",
+                 "chapman_upregulated_positive_control"))
+    DEneg_vs_DEpos_K4_tbl <- table(DEneg_vs_DEpos_K4_temp)
+    DEneg_vs_DEpos_K4_pval <- chisq.test(DEneg_vs_DEpos_K4_tbl)
     
+    DEneg_vs_nonDEneg_K4_temp <- temp[temp$group!="chapman_upregulated_positive_control",]
+    DEneg_vs_nonDEneg_K4_temp$group <- factor(DEneg_vs_nonDEneg_K4_temp$group, 
+                                           levels = c("chapman_downregulated_negative_control",
+                                                      "chapman_non-DE_negative_control"))
+    DEneg_vs_nonDEneg_K4_tbl <- table(DEneg_vs_nonDEneg_K4_temp)
+    DEneg_vs_nonDEneg_K4_pval <- chisq.test(DEneg_vs_nonDEneg_K4_tbl)
     
-    p <- ggplot(reps, aes(x=group, y=count, fill=mark, group=id))
-    p <- p + geom_point(stat = "identity", position=position_dodge(0.9))
-    p <- p + theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.6))
-    p <- p + ylab("Absolute histone marks")
-    print(p)
-    
-    return(plot_df)
-  })
-  names(res) <- c("upstream")
-  saveRDS(res, paste0(RobjectDir, "/", exp_nos[o], "bp_peak_no_per_seq_plot_df.rds"))
+    nonDEneg_vs_DEpos_K4_temp <- temp[temp$group!="chapman_downregulated_negative_control",]
+    nonDEneg_vs_DEpos_K4_temp$group <- factor(nonDEneg_vs_DEpos_K4_temp$group, 
+                                           levels = c("chapman_non-DE_negative_control",
+                                                      "chapman_upregulated_positive_control"))
+    nonDEneg_vs_DEpos_K4_tbl <- table(nonDEneg_vs_DEpos_K4_temp)
+    nonDEneg_vs_DEpos_K4_pval <- chisq.test(nonDEneg_vs_DEpos_K4_tbl)
 }
-
-
+    ######
+    
+#     # plot on barplot:
+#     p <- ggplot(peak_stats, aes(x=group, y=count, fill=mark))
+#     p <- p + geom_bar(stat = "identity", position=position_dodge(0.9))
+#     p <- p + geom_errorbar(aes(ymin=count-se, ymax=count+se), width=0.2,
+#                            position=position_dodge(0.9))
+#     p <- p + theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.6))
+#     p <- p + ylab("Histone marks per sequence")
+#     pdf(paste0(plotDir, "/peak_no_per_seq_500bp_upstream_se.pdf"))
+#     print(p)
+#     dev.off()
+#     
+#     ######
+#     df <- m_df[m_df$mark == "HGSOC_H3K4me3",]
+#     cont <- df[grep("control", df$group),]
+#     
+#     # plot on scatterplot:
+#     p <- ggplot(cont, aes(x=group, y=count, fill=mark, group=id))
+#     p <- p + geom_point(stat = "identity", position=position_dodge(0.9))
+#     # p <- p + geom_errorbar(aes(ymin=count-se, ymax=count+se), width=0.2,
+#     #                        position=position_dodge(0.9))
+#     p <- p + theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.6))
+#     p <- p + ylab("Absolute histone marks")
+#     print(p)
+#     
+#    
+#     
+#     
+#     p <- ggplot(reps, aes(x=group, y=count, fill=mark, group=id))
+#     p <- p + geom_point(stat = "identity", position=position_dodge(0.9))
+#     p <- p + theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.6))
+#     p <- p + ylab("Absolute histone marks")
+#     print(p)
+#     
+#     return(plot_df)
+#   })
+#   names(res) <- c("upstream")
+#   saveRDS(res, paste0(RobjectDir, "/", exp_nos[o], "bp_peak_no_per_seq_plot_df.rds"))
+# }
+# 
+# 

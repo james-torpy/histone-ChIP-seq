@@ -26,14 +26,14 @@ library(parallel)
 project <- "hgsoc_repeats"
 expName <- "histone-ChIP-seq"
 sampleName <- "chapman-rothe_2013_hg19"
-descrip <- paste0("absolute_values_chapmanDE_ctls")
+descrip <- paste0("histone_mark_odds_100_chapmanDE_ctls")
 # specify regions to include for marks (body, upstream, up_and_downstream)
 exp_nos <- c(500)
-posits <- "up_and_downstream"
+Posit <- "up_and_downstream"
 
 # define directories:
-homeDir <- "/Users/jamestorpy/clusterHome/"
-#homeDir <- "/share/ScratchGeneral/jamtor/"
+#homeDir <- "/Users/jamestorpy/clusterHome/"
+homeDir <- "/share/ScratchGeneral/jamtor/"
 projectDir <- paste0(homeDir, "/projects/", project, "/", expName, "/", sampleName, "/")
 resultsDir <- paste0(projectDir, "/results")
 refDir <- paste0(projectDir, "/refs/")
@@ -42,7 +42,6 @@ plotDir <- paste0(resultsDir, "/R/plots/")
 tableDir <- paste0(resultsDir, "/R/tables/")
 
 inDir <- paste0(resultsDir, "/epic/")
-ref_dir <- paste0(projectDir, "/refs/")
 DE_dir <- paste0(homeDir,
                  "projects/hgsoc_repeats/RNA-seq/results/R/exp9/plots/DEplots/htseq_EdgeR_primary_HGSOC_vs_FT/")
 
@@ -50,9 +49,9 @@ system(paste0("mkdir -p ", plotDir))
 system(paste0("mkdir -p ", tableDir))
 system(paste0("mkdir -p ", RobjectDir))
 
-pos_chapman_ctl <- as.character(read.table(file=paste0(ref_dir, 
+pos_chapman_ctl <- as.character(read.table(file=paste0(refDir, 
                                                        "/chapman-roethe_top_DE_RNA_symbols_ids.txt"))[,1])
-neg_chapman_ctl <- as.character(read.table(file=paste0(ref_dir, 
+neg_chapman_ctl <- as.character(read.table(file=paste0(refDir, 
                                                         "/chapman-roethe_bottom_DE_RNA_symbols_ids.txt"))[,1])
 
 
@@ -86,7 +85,10 @@ for (o in 1:length(exp_nos)) {
     project <- "hgsoc_repeats"
     expName <- "histone-ChIP-seq"
     sampleName <- "chapman-rothe_2013_hg19"
-    descrip <- paste0(sampleName, "SICER_peak_enrichment")
+    descrip <- paste0("histone_mark_odds_100_chapmanDE_ctls")
+    # specify regions to include for marks (body, upstream, up_and_downstream)
+    exp_nos <- c(500)
+    Posit <- "up_and_downstream"
     
     # define directories:
     #homeDir <- "/Users/jamestorpy/clusterHome/"
@@ -99,11 +101,9 @@ for (o in 1:length(exp_nos)) {
     tableDir <- paste0(resultsDir, "/R/tables/")
     
     inDir <- paste0(resultsDir, "/epic/")
-    ref_dir <- paste0(projectDir, "/refs/")
     DE_dir <- paste0(homeDir,
-                     "projects/hgsoc_repeats/RNA-seq/results/R/exp9/plots/DEplots/htseq_EdgeR_primary_HGSOC_vs_FT/")
-    
-    
+                 "projects/hgsoc_repeats/RNA-seq/results/R/exp9/plots/DEplots/htseq_EdgeR_primary_HGSOC_vs_FT/")
+
     system(paste0("mkdir -p ", plotDir))
     system(paste0("mkdir -p ", tableDir))
     system(paste0("mkdir -p ", RobjectDir))
@@ -165,7 +165,7 @@ for (o in 1:length(exp_nos)) {
       peak_gr <- lapply(in_files, load_bed)
       names(peak_gr) <- s_ids
       
-      saveRDS(peak_gr, paste0(RobjectDir, "/peak_gr.rds"))
+      saveRDS(peak_gr, paste0(Robject_dir, "/peak_gr.rds"))
       
     } else {
       print("Loading reads GRanges object...")
@@ -252,8 +252,7 @@ for (o in 1:length(exp_nos)) {
       rp_annot <- split(rp_annot, rp_annot$ID)
           
       # select subsection of ranges:
-      rp_annot <- lapply(rp_annot, exp_annot, Length = exp_nos[o],
-                         Posit = Posit)
+      rp_annot <- lapply(rp_annot, exp_annot, Length = exp_nos[o])
       
       
       saveRDS(rp_annot, paste0(RobjectDir, "/rp_", Posit,
@@ -276,8 +275,7 @@ for (o in 1:length(exp_nos)) {
       ctl_reps <- split(ctl_reps, ctl_reps$ID)
       
       # select subsection of ranges:
-      ctl_reps <- lapply(ctl_reps, exp_annot, Length = exp_nos[o],
-                         Posit = Posit)
+      ctl_reps <- lapply(ctl_reps, exp_annot, Length = exp_nos[o])
       
       
       saveRDS(ctl_reps, paste0(RobjectDir, "/ctl_rp_", Posit, "_",
@@ -359,7 +357,7 @@ for (o in 1:length(exp_nos)) {
 	    pc_exp <- pc_exp[!(names(pc_exp) %in% pos_chapman_ctl)]
 	    
 	    n=1
-      pc_exp <- parLapply(cl, pc_exp, exp_annot, Length = Length)
+      pc_exp <- parLapply(cl, pc_exp, exp_annot, Length = exp_nos[o])
 	  
 	    # remove NULL values:
 	    if ( any(unlist(lapply(pc_exp, is.null))) ) {

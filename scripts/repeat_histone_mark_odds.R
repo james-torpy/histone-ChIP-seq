@@ -51,9 +51,9 @@ system(paste0("mkdir -p ", tableDir))
 system(paste0("mkdir -p ", RobjectDir))
 
 pos_chapman_ctl <- as.character(read.table(file=paste0(ref_dir, 
-                                                       "/chapman-roethe_up_DE_RNA_symbols_ids.txt"))[,1])
+                                                       "/chapman-roethe_top_DE_RNA_symbols_ids.txt"))[,1])
 neg_chapman_ctl <- as.character(read.table(file=paste0(ref_dir, 
-                                                        "/chapman-roethe_top_DE_RNA_symbols_ids.txt"))[,1])
+                                                        "/chapman-roethe_bottom_DE_RNA_symbols_ids.txt"))[,1])
 
 
 # set up parallel workers:
